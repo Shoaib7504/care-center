@@ -103,7 +103,7 @@ export function Footer() {
           <ul className="space-y-3 text-sm text-muted-foreground">
             <li className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-primary" /> 
-              <span>hello@care.xyz</span>
+              <span>hello@caringhands</span>
             </li>
             <li className="flex items-center gap-2">
               <Phone className="h-4 w-4 text-primary" /> 
@@ -120,7 +120,7 @@ export function Footer() {
       {/* Bottom Bar */}
       <div className="border-t">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6 text-xs text-muted-foreground flex flex-col md:flex-row gap-2 justify-between">
-          <p>© {new Date().getFullYear()} Care.xyz — Caring made simple.</p>
+          <p>© {new Date().getFullYear()}CaringHands — Caring made simple.</p>
           <p>Built with love for families everywhere.</p>
         </div>
       </div>

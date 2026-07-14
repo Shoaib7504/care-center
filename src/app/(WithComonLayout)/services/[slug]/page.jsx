@@ -5,7 +5,9 @@ import Image from 'next/image';
 import baby from '@/assets/service-baby.jpg';
 import elderly from '@/assets/service-elderly.jpg';
 import nursing from '@/assets/service-nursing.jpg';
-
+import doctor1 from '@/assets/doctor1.jpg';
+import doctor2 from '@/assets/doctor2.jpg';
+import doctor3 from '@/assets/doctor3.jpg';
 const services = [
   {
     id: 'babysitting',
@@ -26,6 +28,7 @@ const services = [
     ],
     caregiver: {
       name: 'Sarah Mitchell',
+      picture: doctor1,
       role: 'Certified Childcare Specialist · 6 yrs exp.',
       rating: 4.9,
       reviews: 142,
@@ -55,6 +58,7 @@ const services = [
     ],
     caregiver: {
       name: 'James Okafor',
+      picture: doctor3,
       role: 'Senior Care Specialist · 9 yrs exp.',
       rating: 4.8,
       reviews: 98,
@@ -84,6 +88,7 @@ const services = [
     ],
     caregiver: {
       name: 'Dr. Priya Nair',
+      picture: doctor2,
       role: 'Registered Nurse · 12 yrs exp.',
       rating: 5.0,
       reviews: 217,
@@ -97,9 +102,9 @@ const services = [
 ];
 
 
-const ServiceDetails =async ({ params }) => {
- const {slug}=await params;
-    
+const ServiceDetails = async ({ params }) => {
+  const { slug } = await params;
+
   const s = services.find((service) => service.id === slug);
   if (!s) notFound();
 
@@ -153,7 +158,14 @@ const ServiceDetails =async ({ params }) => {
 
           {/* Caregiver */}
           <div className="animate-fade-up delay-300 rounded-3xl border bg-card p-6 shadow-card flex flex-col sm:flex-row sm:items-center gap-5">
-            <div className="h-20 w-20 rounded-2xl gradient-primary shrink-0" />
+            <div className='h-20 w-20 rounded-2xl  shrink-0'>
+              <Image
+                src={s.caregiver.picture}
+                width={500}
+                height={500}
+                alt="Picture of the author"
+              />
+            </div>
             <div className="flex-1">
               <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Featured caregiver
