@@ -1,6 +1,9 @@
 import { Quote, Star } from 'lucide-react';
 import React from 'react';
-
+export const metadata = {
+    title: "Testimonials",
+    description: "Heartfelt stories from families who found peace with Care.xyz",
+}
 const Testimonials = () => {
     const items = [
         { name: "Sarah M.", role: "Mother of two", quote: "Booking a sitter at 7am for an emergency? Care.xyz had someone amazing at our door by 9. Lifesavers.", rating: 5 },

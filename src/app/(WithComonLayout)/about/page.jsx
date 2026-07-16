@@ -9,7 +9,10 @@ const values = [
 ];
 
 const delays = ['delay-300', 'delay-400', 'delay-500', 'delay-600'];
-
+export const metadata = {
+  title: "About Us",
+  description: "Compassionate Care, Right at Your Doorstep.",
+};
 const AboutUs = () => {
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-16">
