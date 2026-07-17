@@ -2,48 +2,58 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { 
-  HeartPulse, 
-  User, 
-  IdCard, 
-  Mail, 
-  Phone, 
-  Lock, 
-  ArrowRight, 
+import { useForm } from "react-hook-form";
+import {
+  HeartPulse,
+  User,
+  IdCard,
+  Mail,
+  Phone,
+  Lock,
+  ArrowRight,
   Check,
   Eye,
-  EyeOff
+  EyeOff,
 } from "lucide-react";
 
 export default function RegisterPage() {
-  // 1. Core Form & Visibility States
-  const [name, setName] = useState("");
-  const [nid, setNid] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [pw, setPw] = useState("");
-  const [pw2, setPw2] = useState("");
-  
   const [showPw, setShowPw] = useState(false);
   const [showPw2, setShowPw2] = useState(false);
 
-  // 2. Form Submission Handler
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (pw !== pw2) {
-      alert("Passwords do not match!");
-      return;
-    }
-    alert(`Registration attempted for: ${email}`);
+  // react-hook-form setup
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    defaultValues: {
+      name: "",
+      nid: "",
+      email: "",
+      phone: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
+
+  // Watch password live for the requirement checklist
+  const pw = watch("password");
+  const pw2 = watch("confirmPassword");
+
+  // Submission handler — just logs the form values for now
+  const onSubmit = (data) => {
+    console.log("Registration form submitted:", data);
   };
 
   return (
     <div className="min-h-[calc(100vh-4rem)] grid lg:grid-cols-2 bg-background font-sans antialiased selection:bg-primary-soft">
-      
+
       {/* Interactive Form Side Column */}
       <div className="flex items-center justify-center p-6 sm:p-12 order-2 lg:order-1 bg-background">
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
           className="w-full max-w-md rounded-3xl border border-border bg-card p-8 shadow-card"
         >
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Create your account</h1>
@@ -62,13 +72,15 @@ export default function RegisterPage() {
                 <input
                   id="name"
                   type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  {...register("name", { required: "Full name is required" })}
+                  aria-invalid={errors.name ? "true" : "false"}
                   placeholder="Jane Doe"
                   className="pl-10.5 w-full rounded-xl border border-input bg-background text-foreground px-3.5 py-2 text-sm placeholder:text-muted-foreground transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 />
               </div>
+              {errors.name && (
+                <p className="mt-1.5 text-xs font-medium text-destructive">{errors.name.message}</p>
+              )}
             </div>
 
             {/* NID Number Input */}
@@ -81,13 +93,15 @@ export default function RegisterPage() {
                 <input
                   id="nid"
                   type="text"
-                  required
-                  value={nid}
-                  onChange={(e) => setNid(e.target.value)}
+                  {...register("nid", { required: "NID number is required" })}
+                  aria-invalid={errors.nid ? "true" : "false"}
                   placeholder="1234567890"
                   className="pl-10.5 w-full rounded-xl border border-input bg-background text-foreground px-3.5 py-2 text-sm placeholder:text-muted-foreground transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 />
               </div>
+              {errors.nid && (
+                <p className="mt-1.5 text-xs font-medium text-destructive">{errors.nid.message}</p>
+              )}
             </div>
 
             {/* Email Input */}
@@ -100,13 +114,21 @@ export default function RegisterPage() {
                 <input
                   id="email"
                   type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  {...register("email", {
+                    required: "Email is required",
+                    pattern: {
+                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                      message: "Enter a valid email address",
+                    },
+                  })}
+                  aria-invalid={errors.email ? "true" : "false"}
                   placeholder="you@email.com"
-                  className="pl-10.5 w-full rounded-xl border border-input  text-foreground px-3.5 py-2 text-sm placeholder:text-muted-foreground transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="pl-10.5 w-full rounded-xl border border-input text-foreground px-3.5 py-2 text-sm placeholder:text-muted-foreground transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 />
               </div>
+              {errors.email && (
+                <p className="mt-1.5 text-xs font-medium text-destructive">{errors.email.message}</p>
+              )}
             </div>
 
             {/* Contact Number Input */}
@@ -119,13 +141,15 @@ export default function RegisterPage() {
                 <input
                   id="phone"
                   type="tel"
-                  required
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  {...register("phone", { required: "Contact number is required" })}
+                  aria-invalid={errors.phone ? "true" : "false"}
                   placeholder="+1 555 000 0000"
                   className="pl-10.5 w-full rounded-xl border border-input bg-background text-foreground px-3.5 py-2 text-sm placeholder:text-muted-foreground transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 />
               </div>
+              {errors.phone && (
+                <p className="mt-1.5 text-xs font-medium text-destructive">{errors.phone.message}</p>
+              )}
             </div>
 
             {/* Password Input */}
@@ -138,21 +162,26 @@ export default function RegisterPage() {
                 <input
                   id="pw"
                   type={showPw ? "text" : "password"}
-                  required
-                  value={pw}
-                  onChange={(e) => setPw(e.target.value)}
+                  {...register("password", {
+                    required: "Password is required",
+                    minLength: { value: 6, message: "Must be at least 6 characters" },
+                  })}
+                  aria-invalid={errors.password ? "true" : "false"}
                   placeholder="At least 6 chars"
                   className="pl-10.5 pr-10.5 w-full rounded-xl border border-input bg-background text-foreground px-3.5 py-2 text-sm placeholder:text-muted-foreground transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPw(!showPw)}
+                  onClick={() => setShowPw((prev) => !prev)}
                   className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   aria-label={showPw ? "Hide password" : "Show password"}
                 >
                   {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+              {errors.password && (
+                <p className="mt-1.5 text-xs font-medium text-destructive">{errors.password.message}</p>
+              )}
             </div>
 
             {/* Confirm Password Input */}
@@ -165,39 +194,44 @@ export default function RegisterPage() {
                 <input
                   id="pw2"
                   type={showPw2 ? "text" : "password"}
-                  required
-                  value={pw2}
-                  onChange={(e) => setPw2(e.target.value)}
+                  {...register("confirmPassword", {
+                    required: "Please confirm your password",
+                    validate: (value) => value === pw || "Passwords do not match",
+                  })}
+                  aria-invalid={errors.confirmPassword ? "true" : "false"}
                   placeholder="Repeat password"
                   className="pl-10.5 pr-10.5 w-full rounded-xl border border-input bg-background text-foreground px-3.5 py-2 text-sm placeholder:text-muted-foreground transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPw2(!showPw2)}
+                  onClick={() => setShowPw2((prev) => !prev)}
                   className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   aria-label={showPw2 ? "Hide confirm password" : "Show confirm password"}
                 >
                   {showPw2 ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+              {errors.confirmPassword && (
+                <p className="mt-1.5 text-xs font-medium text-destructive">{errors.confirmPassword.message}</p>
+              )}
             </div>
 
-            {/* Requirement Checklist */}
+            {/* Requirement Checklist — still live via watch() */}
             <ul className="text-xs space-y-1.5 grid grid-cols-2 gap-x-2 pt-1 select-none text-muted-foreground font-medium">
               <li className="flex items-center gap-1.5">
-                <Check className={`h-3 w-3 ${pw.length >= 6 ? "text-success" : "text-muted-foreground/40"}`} /> 
+                <Check className={`h-3 w-3 ${pw?.length >= 6 ? "text-success" : "text-muted-foreground/40"}`} />
                 6+ characters
               </li>
               <li className="flex items-center gap-1.5">
-                <Check className={`h-3 w-3 ${/[A-Z]/.test(pw) ? "text-success" : "text-muted-foreground/40"}`} /> 
+                <Check className={`h-3 w-3 ${/[A-Z]/.test(pw || "") ? "text-success" : "text-muted-foreground/40"}`} />
                 One uppercase
               </li>
               <li className="flex items-center gap-1.5">
-                <Check className={`h-3 w-3 ${/[a-z]/.test(pw) ? "text-success" : "text-muted-foreground/40"}`} /> 
+                <Check className={`h-3 w-3 ${/[a-z]/.test(pw || "") ? "text-success" : "text-muted-foreground/40"}`} />
                 One lowercase
               </li>
               <li className="flex items-center gap-1.5">
-                <Check className={`h-3 w-3 ${pw && pw === pw2 ? "text-success" : "text-muted-foreground/40"}`} /> 
+                <Check className={`h-3 w-3 ${pw && pw === pw2 ? "text-success" : "text-muted-foreground/40"}`} />
                 Passwords match
               </li>
             </ul>
@@ -206,9 +240,10 @@ export default function RegisterPage() {
           {/* Form Action Submit Button */}
           <button
             type="submit"
-            className="w-full bg-primary text-primary-foreground hover:opacity-90 inline-flex items-center justify-center rounded-full text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring h-11 px-8 mt-6 shadow-soft gap-2 cursor-pointer"
+            disabled={isSubmitting}
+            className="w-full bg-primary text-primary-foreground hover:opacity-90 inline-flex items-center justify-center rounded-full text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring h-11 px-8 mt-6 shadow-soft gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Create account <ArrowRight className="h-4 w-4" />
+            {isSubmitting ? "Creating account..." : "Create account"} <ArrowRight className="h-4 w-4" />
           </button>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
@@ -222,10 +257,9 @@ export default function RegisterPage() {
 
       {/* Visual Branding Side Column */}
       <div className="hidden lg:flex relative gradient-hero items-center justify-center p-12 overflow-hidden order-1 lg:order-2">
-        {/* Ambient Blur Glows matching OKLCH parameters */}
         <div className="absolute -top-20 -right-20 h-80 w-80 rounded-full bg-secondary/20 blur-3xl" />
         <div className="absolute -bottom-20 -left-20 h-80 w-80 rounded-full bg-primary/20 blur-3xl" />
-        
+
         <div className="relative max-w-md text-center">
           <div className="mx-auto mb-8 grid h-20 w-20 place-items-center rounded-3xl gradient-primary text-primary-foreground shadow-glow">
             <HeartPulse className="h-10 w-10" />

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 import {
   Clock,
   MapPin,
@@ -22,6 +23,14 @@ const STEPS = [
   { id: 4, label: "Payment",  Icon: CreditCard },
 ];
 
+// Fields that must be valid before moving on from each step
+const STEP_FIELDS = {
+  1: ["qty"],
+  2: ["city", "address"],
+  3: [],
+  4: ["cardName", "cardNumber", "cardExp", "cardCvc"],
+};
+
 // Shared input class
 const inputCls =
   "w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm " +
@@ -29,26 +38,42 @@ const inputCls =
   "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 transition-shadow";
 
 export default function BookingForm({ service }) {
-  //  Step state
+  //  Step / flow state (not form data)
   const [step, setStep] = useState(1);
   const [done, setDone] = useState(false);
 
-  //  Duration state — no TypeScript generics in .jsx
-  const [unit, setUnit] = useState("hours");
-  const [qty,  setQty]  = useState(2);
+  // react-hook-form setup — replaces all the individual useState fields
+  const {
+    register,
+    handleSubmit,
+    watch,
+    trigger,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      unit: "hours",
+      qty: 2,
+      division: "",
+      district: "",
+      city: "",
+      area: "",
+      address: "",
+      cardName: "",
+      cardNumber: "",
+      cardExp: "",
+      cardCvc: "",
+    },
+  });
 
-  //  Location state
-  const [division, setDivision] = useState("");
-  const [district, setDistrict] = useState("");
-  const [city,     setCity]     = useState("");
-  const [area,     setArea]     = useState("");
-  const [address,  setAddress]  = useState("");
-
-  // Payment state
-  const [cardName,   setCardName]   = useState("");
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardExp,    setCardExp]    = useState("");
-  const [cardCvc,    setCardCvc]    = useState("");
+  // Watch the fields we need live for pricing + review + summary
+  const unit = watch("unit");
+  const qty = watch("qty");
+  const division = watch("division");
+  const district = watch("district");
+  const city = watch("city");
+  const area = watch("area");
+  const address = watch("address");
 
   //  Derived pricing — field is pricePerHour in the DB
   const rate     = service?.pricePerHour ?? 0;
@@ -57,15 +82,24 @@ export default function BookingForm({ service }) {
   const vat      = subtotal * 0.05;
   const total    = subtotal + vat;
 
-  // Per-step validation
-  const canNext =
-    step === 1 ? qty > 0 :
-    step === 2 ? city.trim() !== "" && address.trim() !== "" :
-    step === 3 ? true :
-    cardName.trim() !== "" &&
-    cardNumber.replace(/\s/g, "").length >= 16 &&
-    cardExp.trim() !== "" &&
-    cardCvc.trim().length >= 3;
+  // Validate only the current step's fields, then advance
+  const goNext = async () => {
+    const valid = await trigger(STEP_FIELDS[step]);
+    if (valid) setStep((s) => s + 1);
+  };
+
+  // Final submit handler — logs everything instead of calling an API
+  const onSubmit = (data) => {
+    console.log("Booking submitted:", {
+      ...data,
+      hours,
+      subtotal,
+      vat,
+      total,
+      service: service?.title ?? null,
+    });
+    setDone(true);
+  };
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10">
@@ -110,7 +144,7 @@ export default function BookingForm({ service }) {
       )}
 
       {/* Main layout */}
-      <div className="grid lg:grid-cols-[1fr_360px] gap-8">
+      <form onSubmit={handleSubmit(onSubmit)} className="grid lg:grid-cols-[1fr_360px] gap-8">
 
         {/* Step card */}
         <div className="rounded-3xl border border-border bg-card shadow-card p-6 sm:p-8 min-h-[480px] flex flex-col">
@@ -158,7 +192,8 @@ export default function BookingForm({ service }) {
                       {["hours", "days"].map((u) => (
                         <button
                           key={u}
-                          onClick={() => setUnit(u)}
+                          type="button"
+                          onClick={() => setValue("unit", u)}
                           className={`flex-1 rounded-2xl border px-4 py-3 font-semibold capitalize transition-all cursor-pointer
                             ${unit === u
                               ? "border-primary bg-primary-soft text-primary"
@@ -170,11 +205,22 @@ export default function BookingForm({ service }) {
                       ))}
                     </div>
 
+                    {/* Hidden registered field so react-hook-form validates qty > 0 */}
+                    <input
+                      type="hidden"
+                      {...register("qty", {
+                        required: true,
+                        min: { value: 1, message: "At least 1" },
+                        valueAsNumber: true,
+                      })}
+                    />
+
                     <div className="mt-8 rounded-2xl border border-border p-6 text-center">
                       <p className="text-sm text-muted-foreground">Number of {unit}</p>
                       <div className="mt-3 flex items-center justify-center gap-4">
                         <button
-                          onClick={() => setQty(Math.max(1, qty - 1))}
+                          type="button"
+                          onClick={() => setValue("qty", Math.max(1, qty - 1), { shouldValidate: true })}
                           aria-label="Decrease"
                           className="h-12 w-12 rounded-full border border-border text-xl font-bold hover:bg-muted transition-colors cursor-pointer"
                         >
@@ -184,7 +230,8 @@ export default function BookingForm({ service }) {
                           {qty}
                         </span>
                         <button
-                          onClick={() => setQty(qty + 1)}
+                          type="button"
+                          onClick={() => setValue("qty", qty + 1, { shouldValidate: true })}
                           aria-label="Increase"
                           className="h-12 w-12 rounded-full border border-border text-xl font-bold hover:bg-muted transition-colors cursor-pointer"
                         >
@@ -212,19 +259,27 @@ export default function BookingForm({ service }) {
                     <div className="mt-6 grid sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium mb-1.5">Division</label>
-                        <input className={inputCls} value={division} onChange={(e) => setDivision(e.target.value)} placeholder="e.g. Dhaka" />
+                        <input className={inputCls} {...register("division")} placeholder="e.g. Dhaka" />
                       </div>
                       <div>
                         <label className="block text-sm font-medium mb-1.5">District</label>
-                        <input className={inputCls} value={district} onChange={(e) => setDistrict(e.target.value)} placeholder="e.g. Dhaka" />
+                        <input className={inputCls} {...register("district")} placeholder="e.g. Dhaka" />
                       </div>
                       <div>
                         <label className="block text-sm font-medium mb-1.5">City <span className="text-destructive">*</span></label>
-                        <input className={inputCls} value={city} onChange={(e) => setCity(e.target.value)} placeholder="e.g. Dhaka" />
+                        <input
+                          className={inputCls}
+                          {...register("city", { required: "City is required" })}
+                          aria-invalid={errors.city ? "true" : "false"}
+                          placeholder="e.g. Dhaka"
+                        />
+                        {errors.city && (
+                          <p className="mt-1 text-xs font-medium text-destructive">{errors.city.message}</p>
+                        )}
                       </div>
                       <div>
                         <label className="block text-sm font-medium mb-1.5">Area</label>
-                        <input className={inputCls} value={area} onChange={(e) => setArea(e.target.value)} placeholder="e.g. Gulshan" />
+                        <input className={inputCls} {...register("area")} placeholder="e.g. Gulshan" />
                       </div>
                     </div>
 
@@ -232,11 +287,14 @@ export default function BookingForm({ service }) {
                       <label className="block text-sm font-medium mb-1.5">Full address <span className="text-destructive">*</span></label>
                       <textarea
                         rows={3}
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
+                        {...register("address", { required: "Full address is required" })}
+                        aria-invalid={errors.address ? "true" : "false"}
                         placeholder="House, road, apartment, landmarks…"
                         className={`${inputCls} resize-none`}
                       />
+                      {errors.address && (
+                        <p className="mt-1 text-xs font-medium text-destructive">{errors.address.message}</p>
+                      )}
                     </div>
                   </div>
                 )}
@@ -281,27 +339,64 @@ export default function BookingForm({ service }) {
                     <div className="mt-6 space-y-4">
                       <div>
                         <label className="block text-sm font-medium mb-1.5">Cardholder name</label>
-                        <input className={inputCls} value={cardName} onChange={(e) => setCardName(e.target.value)} placeholder="Jane Doe" />
+                        <input
+                          className={inputCls}
+                          {...register("cardName", { required: "Cardholder name is required" })}
+                          aria-invalid={errors.cardName ? "true" : "false"}
+                          placeholder="Jane Doe"
+                        />
+                        {errors.cardName && (
+                          <p className="mt-1 text-xs font-medium text-destructive">{errors.cardName.message}</p>
+                        )}
                       </div>
                       <div>
                         <label className="block text-sm font-medium mb-1.5">Card number</label>
                         <input
                           className={inputCls}
-                          value={cardNumber}
-                          onChange={(e) => setCardNumber(e.target.value)}
+                          {...register("cardNumber", {
+                            required: "Card number is required",
+                            validate: (v) =>
+                              v.replace(/\s/g, "").length >= 16 || "Enter a valid card number",
+                          })}
+                          aria-invalid={errors.cardNumber ? "true" : "false"}
                           placeholder="1234 5678 9012 3456"
                           inputMode="numeric"
                           maxLength={19}
                         />
+                        {errors.cardNumber && (
+                          <p className="mt-1 text-xs font-medium text-destructive">{errors.cardNumber.message}</p>
+                        )}
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium mb-1.5">Expiry (MM/YY)</label>
-                          <input className={inputCls} value={cardExp} onChange={(e) => setCardExp(e.target.value)} placeholder="12/27" maxLength={5} />
+                          <input
+                            className={inputCls}
+                            {...register("cardExp", { required: "Required" })}
+                            aria-invalid={errors.cardExp ? "true" : "false"}
+                            placeholder="12/27"
+                            maxLength={5}
+                          />
+                          {errors.cardExp && (
+                            <p className="mt-1 text-xs font-medium text-destructive">{errors.cardExp.message}</p>
+                          )}
                         </div>
                         <div>
                           <label className="block text-sm font-medium mb-1.5">CVC</label>
-                          <input className={inputCls} value={cardCvc} onChange={(e) => setCardCvc(e.target.value)} placeholder="123" inputMode="numeric" maxLength={4} />
+                          <input
+                            className={inputCls}
+                            {...register("cardCvc", {
+                              required: "Required",
+                              minLength: { value: 3, message: "Too short" },
+                            })}
+                            aria-invalid={errors.cardCvc ? "true" : "false"}
+                            placeholder="123"
+                            inputMode="numeric"
+                            maxLength={4}
+                          />
+                          {errors.cardCvc && (
+                            <p className="mt-1 text-xs font-medium text-destructive">{errors.cardCvc.message}</p>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -312,6 +407,7 @@ export default function BookingForm({ service }) {
               {/* Navigation */}
               <div className="mt-10 flex justify-between gap-3">
                 <button
+                  type="button"
                   disabled={step === 1}
                   onClick={() => setStep(step - 1)}
                   className={`inline-flex items-center gap-1.5 rounded-full border border-border bg-card
@@ -323,21 +419,18 @@ export default function BookingForm({ service }) {
 
                 {step < 4 ? (
                   <button
-                    disabled={!canNext}
-                    onClick={() => setStep(step + 1)}
-                    className={`inline-flex items-center gap-1.5 rounded-full gradient-primary
-                      text-primary-foreground px-6 py-2.5 text-sm font-semibold shadow-soft cta-btn cursor-pointer
-                      ${!canNext ? "opacity-40 cursor-not-allowed" : ""}`}
+                    type="button"
+                    onClick={goNext}
+                    className="inline-flex items-center gap-1.5 rounded-full gradient-primary
+                      text-primary-foreground px-6 py-2.5 text-sm font-semibold shadow-soft cta-btn cursor-pointer"
                   >
                     Continue <ArrowRight className="h-4 w-4" />
                   </button>
                 ) : (
                   <button
-                    disabled={!canNext}
-                    onClick={() => setDone(true)}
-                    className={`inline-flex items-center gap-1.5 rounded-full gradient-primary
-                      text-primary-foreground px-6 py-2.5 text-sm font-semibold shadow-glow cta-btn cursor-pointer
-                      ${!canNext ? "opacity-40 cursor-not-allowed" : ""}`}
+                    type="submit"
+                    className="inline-flex items-center gap-1.5 rounded-full gradient-primary
+                      text-primary-foreground px-6 py-2.5 text-sm font-semibold shadow-glow cta-btn cursor-pointer"
                   >
                     Confirm & pay ${total.toFixed(2)}
                   </button>
@@ -387,7 +480,7 @@ export default function BookingForm({ service }) {
             Secure checkout · Cancel anytime
           </div>
         </aside>
-      </div>
+      </form>
     </div>
   );
 }

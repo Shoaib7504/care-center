@@ -39,11 +39,14 @@ const ServicesPage = async () => {
 
   try {
     const res = await getProducts();
-    services = Array.isArray(res) ? res : [];
+    services = res;
   } catch (err) {
     console.error("Failed to fetch services:", err);
     error = "We couldn't load services right now. Please try again shortly.";
   }
+  // console.log(services);
+
+
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-14 bg-background font-sans antialiased selection:bg-primary-soft">

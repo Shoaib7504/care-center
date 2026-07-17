@@ -9,12 +9,12 @@ export const getProducts = async() =>{
     return products
 }
 
-export const getSingleProduct = async (id) => {
-    // Guard: ObjectId throws if the string is not 24 hex chars
-    if (!ObjectId.isValid(id)) return [];
-    const client = await dbConnect(collections.PRODUCTS);
-    const query = { _id: new ObjectId(id) };
-    const cursor = client.find(query);
-    const product = await cursor.toArray();
-    return product;
-}
+export const getSingleProduct = async (slug) => {
+  const collection = await dbConnect(collections.PRODUCTS);
+
+  const product = await collection.findOne({
+    id: slug,
+  });
+
+  return product;
+};

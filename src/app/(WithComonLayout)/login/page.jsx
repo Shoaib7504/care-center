@@ -2,31 +2,38 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useForm } from "react-hook-form";
 import { ArrowRight, Eye, EyeOff, HeartPulse, Lock, Mail } from "lucide-react";
 import { FaGoogle } from "react-icons/fa";
 
-
 export default function LoginPage() {
-  // 1. Core Component States
-  const [email, setEmail] = useState("");
-  const [pw, setPw] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  // 2. Submission Handler
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handles login logic here
-    alert(`Attempting login for: ${email}`);
+  // react-hook-form setup
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    defaultValues: {
+      email: "",
+      password: "",
+      remember: false,
+    },
+  });
+
+  // Submission handler — just logs the form values for now
+  const onSubmit = (data) => {
+    console.log("Login form submitted:", data);
   };
 
   const stats = ["5k+ families", "1k+ caregivers", "98% rated"];
 
   return (
     <div className="min-h-[calc(100vh-4rem)] grid lg:grid-cols-2 bg-background font-sans antialiased selection:bg-primary-soft">
-      
+
       {/* Visual Branding Side Column */}
       <div className="hidden lg:flex relative gradient-hero items-center justify-center p-12 overflow-hidden">
-        {/* Ambient Blur Glows using your OKLCH theme variables */}
         <div className="absolute -top-20 -left-20 h-80 w-80 rounded-full bg-primary/20 blur-3xl" />
         <div className="absolute -bottom-20 -right-20 h-80 w-80 rounded-full bg-secondary/20 blur-3xl" />
 
@@ -52,7 +59,8 @@ export default function LoginPage() {
       {/* Interactive Form Side Column */}
       <div className="flex items-center justify-center p-6 sm:p-12 bg-background">
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(onSubmit)}
+          noValidate
           className="w-full max-w-md rounded-3xl border border-border bg-card p-8 shadow-card"
         >
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Log in</h1>
@@ -65,13 +73,13 @@ export default function LoginPage() {
             type="button"
             className="mt-6 w-full rounded-full border border-border bg-background text-foreground hover:bg-muted py-2.5 flex items-center justify-center gap-2.5 text-sm font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <FaGoogle  className="h-4 w-4 text-primary" />
+            <FaGoogle className="h-4 w-4 text-primary" />
             Continue with Google
           </button>
 
           <div className="my-6 flex items-center gap-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            <div className="flex-1 h-px bg-border" /> 
-            <span>or</span> 
+            <div className="flex-1 h-px bg-border" />
+            <span>or</span>
             <div className="flex-1 h-px bg-border" />
           </div>
 
@@ -86,13 +94,24 @@ export default function LoginPage() {
                 <input
                   id="email"
                   type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
+                  {...register("email", {
+                    required: "Email is required",
+                    pattern: {
+                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                      message: "Enter a valid email address",
+                    },
+                  })}
+                  aria-invalid={errors.email ? "true" : "false"}
                   className="pl-10.5 w-full rounded-xl border border-input bg-background text-foreground px-3.5 py-2 text-sm placeholder:text-muted-foreground transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   placeholder="you@email.com"
                 />
               </div>
+              {errors.email && (
+                <p className="mt-1.5 text-xs font-medium text-destructive">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
 
             {/* Password Input with Interactive Visibility Toggle */}
@@ -105,15 +124,21 @@ export default function LoginPage() {
                 <input
                   id="pw"
                   type={showPassword ? "text" : "password"}
-                  required
-                  value={pw}
-                  onChange={(e) => setPw(e.target.value)}
+                  autoComplete="current-password"
+                  {...register("password", {
+                    required: "Password is required",
+                    minLength: {
+                      value: 6,
+                      message: "Password must be at least 6 characters",
+                    },
+                  })}
+                  aria-invalid={errors.password ? "true" : "false"}
                   className="pl-10.5 pr-10.5 w-full rounded-xl border border-input bg-background text-foreground px-3.5 py-2 text-sm placeholder:text-muted-foreground transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={() => setShowPassword((prev) => !prev)}
                   className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
@@ -124,6 +149,11 @@ export default function LoginPage() {
                   )}
                 </button>
               </div>
+              {errors.password && (
+                <p className="mt-1.5 text-xs font-medium text-destructive">
+                  {errors.password.message}
+                </p>
+              )}
             </div>
 
             {/* Remember Me & Recovery Options */}
@@ -131,6 +161,7 @@ export default function LoginPage() {
               <label className="flex items-center gap-2 cursor-pointer select-none text-foreground text-sm font-medium">
                 <input
                   type="checkbox"
+                  {...register("remember")}
                   className="accent-primary rounded-md h-4 w-4 border-input cursor-pointer"
                 />
                 Remember me
@@ -144,9 +175,10 @@ export default function LoginPage() {
           {/* Form Action Submit Button */}
           <button
             type="submit"
-            className="w-full bg-primary text-primary-foreground hover:opacity-90 inline-flex items-center justify-center rounded-full text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring h-11 px-8 mt-6 shadow-soft gap-2 cursor-pointer"
+            disabled={isSubmitting}
+            className="w-full bg-primary text-primary-foreground hover:opacity-90 inline-flex items-center justify-center rounded-full text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring h-11 px-8 mt-6 shadow-soft gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Log in <ArrowRight className="h-4 w-4" />
+            {isSubmitting ? "Logging in..." : "Log in"} <ArrowRight className="h-4 w-4" />
           </button>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
