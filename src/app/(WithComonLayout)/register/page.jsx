@@ -18,6 +18,7 @@ import {
 import { PostUser } from "@/action/server/auth";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import GooleSingInButton from "@/Components/GooleSingInButton";
 
 export default function RegisterPage() {
   const [showPw, setShowPw] = useState(false);
@@ -270,6 +271,14 @@ export default function RegisterPage() {
               Log in
             </Link>
           </p>
+
+          <div className="my-6 flex items-center gap-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <div className="flex-1 h-px bg-border" />
+            <span>or</span>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+          <GooleSingInButton />
+
         </form>
       </div>
 

@@ -68,18 +68,22 @@ const Navbar = () => {
   const [profileOpen, setProfileOpen] = useState(false);
   const path = usePathname();
   const { data: session, status } = useSession();
-  // console.log(status);
 
   const dropdownRef = useRef(null);
+  const toggleRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
+      if (
+        toggleRef.current &&
+        toggleRef.current.contains(e.target)
+      ) return;
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setProfileOpen(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -112,7 +116,7 @@ const Navbar = () => {
   }
 
   return (
-    <header className="sticky top-0 z-50 glass border-b">
+    <header className="sticky top-0 z-50 glass border-b  w-11/12 mx-auto rounded-xl mt-1">
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
@@ -148,6 +152,7 @@ const Navbar = () => {
         {status === "authenticated" ? (
           <div className="relative hidden md:block" ref={dropdownRef}>
             <button
+              ref={toggleRef}
               onClick={() => setProfileOpen((o) => !o)}
               className="group flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium transition-colors hover:bg-muted"
             >

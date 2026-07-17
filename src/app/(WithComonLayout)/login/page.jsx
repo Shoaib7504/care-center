@@ -4,14 +4,16 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { ArrowRight, Eye, EyeOff, HeartPulse, Lock, Mail } from "lucide-react";
-import { FaGoogle } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import GooleSingInButton from "@/Components/GooleSingInButton";
+import { useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
-  const router=useRouter()
-
+  const router = useRouter()
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
   // react-hook-form setup
   const {
     register,
@@ -30,7 +32,8 @@ export default function LoginPage() {
     const res = await signIn('credentials', {
       email: data.email,
       password: data.password,
-      redirect: false
+      redirect: false,
+      callbackUrl
     })
 
     if (res?.error) {
@@ -39,7 +42,7 @@ export default function LoginPage() {
     else {
       toast.success("Login successful")
       setTimeout(() => {
-        router.push("/")
+        router.push(callbackUrl)
         router.refresh()
       }, 1500)
     }
@@ -87,13 +90,7 @@ export default function LoginPage() {
           </p>
 
           {/* Federated Google OAuth Login */}
-          <button
-            type="button"
-            className="mt-6 w-full rounded-full border border-border bg-background text-foreground hover:bg-muted py-2.5 flex items-center justify-center gap-2.5 text-sm font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <FaGoogle className="h-4 w-4 text-primary" />
-            Continue with Google
-          </button>
+          <GooleSingInButton className="w-full rounded-full border border-border bg-background text-foreground hover:bg-muted py-2.5 flex items-center justify-center gap-2.5 text-sm font-medium transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" />
 
           <div className="my-6 flex items-center gap-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
             <div className="flex-1 h-px bg-border" />

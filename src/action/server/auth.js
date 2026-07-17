@@ -1,6 +1,9 @@
 'use server'
 import bcrypt from 'bcrypt'
 import { collections, dbConnect } from "@/app/lib/dbConnect"
+
+
+// Create User
 export const PostUser = async (payload) => {
     const { email, password, name, phone,nid } = payload;
     // Check payload email is exist or not
@@ -32,6 +35,7 @@ export const PostUser = async (payload) => {
 
 };
 
+// Login User
 export const LogInUser = async (payload) => {
     const { email, password } = payload;
     // check user
@@ -50,3 +54,36 @@ export const LogInUser = async (payload) => {
     return { user, success: true }
     
 }
+
+// Create user using Google
+// export const CreateUserUsingGoogle = async (payload) => {
+//     const { email, password, name, phone,nid } = payload;
+//     // Check payload email is exist or not
+//     if (!email || !password) return null;
+//     // Check User is alive
+//     const userCollection = await dbConnect(collections.USERS)
+//     const isExist = await userCollection.findOne({ email })
+//     if (isExist) {
+//         return { message: "User already exist", success: false }
+//     }
+//     // Create User
+//     const salt = bcrypt.genSaltSync(10);
+//     const hashedPassword = bcrypt.hashSync(password, salt);
+
+//     const newUser = {
+//         providerId:'google',
+//         email,
+//         password: hashedPassword,
+//         name,
+//         phone,
+//         nid,
+//         role: 'user',
+//     }
+//     const client = await dbConnect(collections.USERS);
+//     const result = await client.insertOne(newUser);
+//     if (result.acknowledged) {
+//         return { ...result,insertedId:result.insertedId.toString(), message: "User created successfully", success: true }
+//     }
+
+// };
+
