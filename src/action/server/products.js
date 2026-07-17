@@ -16,5 +16,7 @@ export const getSingleProduct = async (slug) => {
     id: slug,
   });
 
-  return product;
+  if (!product) return null;
+
+  return { ...product, id: product.id?.toString() || product._id?.toString() };
 };

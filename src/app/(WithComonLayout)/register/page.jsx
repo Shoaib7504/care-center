@@ -15,11 +15,14 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
+import { PostUser } from "@/action/server/auth";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function RegisterPage() {
   const [showPw, setShowPw] = useState(false);
   const [showPw2, setShowPw2] = useState(false);
-
+  const router = useRouter()
   // react-hook-form setup
   const {
     register,
@@ -42,8 +45,22 @@ export default function RegisterPage() {
   const pw2 = watch("confirmPassword");
 
   // Submission handler — just logs the form values for now
-  const onSubmit = (data) => {
-    console.log("Registration form submitted:", data);
+  const onSubmit = async (data) => {
+    try {
+      const response = await PostUser(data);
+      if (response.success) {
+        toast.success("Account created successfully")
+        setTimeout(() => {
+          router.push("/")
+          router.refresh()
+        }, 1500)
+      }
+      else {
+        toast.error(response.message)
+      }
+    } catch (error) {
+      console.error("Error registering user:", error);
+    }
   };
 
   return (
@@ -114,6 +131,7 @@ export default function RegisterPage() {
                 <input
                   id="email"
                   type="email"
+                  suppressHydrationWarning
                   {...register("email", {
                     required: "Email is required",
                     pattern: {

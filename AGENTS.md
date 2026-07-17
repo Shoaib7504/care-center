@@ -1,6 +1,6 @@
-# care-center (CaringHands)
+# Care Center (CaringHands)
 
-Home care booking platform — Next.js 16 App Router, Tailwind v4, no backend/API.
+Home care booking platform — Next.js 16 App Router, Tailwind v4, MongoDB, NextAuth.
 
 ## Commands
 
@@ -11,46 +11,58 @@ Home care booking platform — Next.js 16 App Router, Tailwind v4, no backend/AP
 | `npm run start` | serve production build |
 | `npm run lint` | `eslint` (NOT `next lint` — removed in v16) |
 
-## Next.js v16 breaking changes (differs from training data)
+## Next.js v16 quirks
 
-- **`params` and `searchParams` are `Promise`** — must `await params.slug` in server components, or `use(params)` in client components. Synchronous access removed.
+- **`params` / `searchParams` are `Promise`** — must `await params.slug` in server components, or `use(params)` in client components.
 - **`next/image` `priority` is deprecated** — use `preload={true}` instead.
 - **`next lint` removed** — run `eslint` directly.
 - **`middleware` deprecated** → renamed to `proxy`.
-- **`fetch` is NOT cached by default** since v15; use `cache: 'force-cache'` explicitly.
+- **`fetch` NOT cached by default** since v15; use `cache: 'force-cache'` explicitly.
+- **Server components** with `async` are the default; `"use client"` only when interactivity (state, effects, event handlers) is needed.
 
-Read `node_modules/next/dist/docs/` before writing any new code.
+## Tailwind v4
 
-## Tailwind v4 (differs from v3)
+- `@import "tailwindcss"` (no `@tailwind` directives).
+- Custom theme in `@theme inline { ... }` block in `globals.css`.
+- No `tailwind.config.*` — all config is CSS-only.
 
-- **No `@tailwind` directives** — use `@import "tailwindcss"` in CSS.
-- **Custom theme** uses `@theme inline { ... }` block (not `theme.extend` in config).
-- All CSS config is in `globals.css`, not `tailwind.config.*`.
+## Architecture & data flow
+
+```
+client component  →  server action (src/action/server/)  →  MongoDB (src/app/lib/dbConnect.js)
+```
+- **MongoDB** connection via `src/app/lib/dbConnect.js` (lazy-init, reads `MONGODB_URI` + `DB_NAME` from env).
+- **Server actions** in `src/action/server/products.js` — `getProducts()`, `getSingleProduct(slug)`. The slug field is the document's `id` string, not `_id`.
+- **NextAuth** setup at `src/api/auth/[...nextAuth]/route.js` — but **no providers configured** in `src/app/lib/authOption.js`. GitHub import is unused.
+- `src/lib/services-data.js` contains hardcoded fallback data (unused by pages — pages use MongoDB via server actions).
+- `src/app/(WithComonLayout)/booking/page.jsx` uses hardcoded sample bookings (`sampleBookings` array). Performs `confirm()` for cancel — blocks the event loop.
+- **Forms** use `react-hook-form` (login, register, booking form).
+
+## Environment
+
+- Required vars: `MONGODB_URI`, `DB_NAME`. Stored in `.env` (checked into git despite `.gitignore` pattern).
+- `.env` is in the repo — the gitignore rule is broken for this file.
 
 ## Project structure
 
-- `src/app/layout.js` — root layout (`.js` extension, provides `<html>`/`<body>`, fonts)
-- `src/app/(WithComonLayout)/layout.jsx` — route-group layout wrapping most pages (Navbar + Footer)
-- `src/Components/` — **capital C**, shared components in `Shared/` subfolder
-- `src/assets/` — local images imported via `@/assets/...`
-- Path alias `@/*` → `./src/*` (configured in `jsconfig.json` — **no TypeScript**)
+- `src/app/layout.jsx` — root layout (`.jsx` extension, provides `<html>`/`<body>`, fonts, metadata).
+- `src/app/(WithComonLayout)/layout.jsx` — route-group layout (Navbar + Footer, wraps most pages).
+- `src/Components/` — capitalized, shared components in `Shared/` subfolder (Navbar, Footer).
+- `src/assets/` — local images imported via `@/assets/...`.
+- `src/app/lib/` — dbConnect, authOption (not `src/lib/`).
+- Path alias `@/*` → `./src/*` (jsconfig.json, no TypeScript).
 
-## Styling conventions
+## Styling
 
-Use the custom utility classes from `globals.css` rather than ad-hoc variants:
-- `.glass` — frosted glass card
-- `.gradient-primary`, `.gradient-hero`, `.gradient-text` — branded gradients
-- `.shadow-card`, `.shadow-soft`, `.shadow-glow` — shadow levels
-- `.animate-fade-in`, `.animate-fade-up`, `.animate-scale-in` — CSS-only animations
-- `.delay-100` through `.delay-700` — animation delay increments
-- `.cta-btn`, `.value-card`, `.card-icon` — interactive hover patterns
-- Color tokens: `bg-primary`, `bg-secondary`, `bg-accent`, `text-foreground`, `text-muted-foreground`, etc.
-- Dark mode via `.dark` class
+Use custom utility classes from `globals.css` (`.glass`, `.gradient-primary`, `.gradient-hero`, `.gradient-text`, `.shadow-card`, `.shadow-soft`, `.shadow-glow`, `.animate-fade-in`, `.animate-fade-up`, `.animate-scale-in`, `.delay-{100..700}`, `.cta-btn`, `.value-card`, `.card-icon`, `.glass`). Colors via CSS tokens (`bg-primary`, `text-foreground`, `text-muted-foreground`, etc.). Dark mode via `.dark` class.
 
-## Known issues
+## Known issues & quirks
 
-- `src/app/(WithComonLayout)/booking/[slug]/page.jsx` is `"use client"` and expects `{ service }` as a prop, but Next.js page components receive `{ params, searchParams }` — this is currently non-functional.
-- Service/booking data is hardcoded (no database, no API routes, no auth).
+- **Auth stub**: `BookButton` always redirects to `/login` (`const user = false`). No real session check.
+- **App name inconsistency**: Navbar brand is "CaringHands", metadata/SEO title uses "Care Center".
+- **`next/image` remote pattern**: configured only for `care-village-app.lovable.app` — add entries for other image hosts.
+- **Loading state**: `src/app/loading.jsx` is a basic text placeholder.
+- **`not-found` page**: bare-bones, no navbar/footer (renders outside the route-group layout).
 
 ## Linting
 

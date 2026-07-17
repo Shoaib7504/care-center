@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { getSingleProduct, getProducts } from '@/action/server/products';
+import BookButton from '@/Components/BookButton';
 
 export const metadata = {
   title: "Service Details | Care Center",
@@ -158,13 +159,8 @@ const ServiceDetails = async ({ params }) => {
               </div>
             </div>
 
-            {/* Passes the MongoDB _id string as the booking slug */}
-            <Link
-              href={`/booking/${product.id}`}
-              className="cta-btn flex items-center justify-center gap-2 w-full mt-6 px-6 py-3 rounded-full gradient-primary text-primary-foreground font-semibold text-sm shadow-soft"
-            >
-              Book now <ArrowRight className="h-4 w-4" />
-            </Link>
+            {/* Passes only the serializable id string across the server→client boundary */}
+            <BookButton productId={product.id} />
 
             <p className="mt-3 text-xs text-center text-muted-foreground flex items-center justify-center gap-1">
               <ShieldCheck className="h-3.5 w-3.5" /> Secure payment · Insured care

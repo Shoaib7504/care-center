@@ -1,13 +1,16 @@
 "use client";
-
+import { signIn } from "next-auth/react"
 import React, { useState } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { ArrowRight, Eye, EyeOff, HeartPulse, Lock, Mail } from "lucide-react";
 import { FaGoogle } from "react-icons/fa";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const router=useRouter()
 
   // react-hook-form setup
   const {
@@ -23,8 +26,23 @@ export default function LoginPage() {
   });
 
   // Submission handler — just logs the form values for now
-  const onSubmit = (data) => {
-    console.log("Login form submitted:", data);
+  const onSubmit = async (data) => {
+    const res = await signIn('credentials', {
+      email: data.email,
+      password: data.password,
+      redirect: false
+    })
+
+    if (res?.error) {
+      toast.error(res.error)
+    }
+    else {
+      toast.success("Login successful")
+      setTimeout(() => {
+        router.push("/")
+        router.refresh()
+      }, 1500)
+    }
   };
 
   const stats = ["5k+ families", "1k+ caregivers", "98% rated"];
@@ -95,6 +113,7 @@ export default function LoginPage() {
                   id="email"
                   type="email"
                   autoComplete="email"
+                  suppressHydrationWarning
                   {...register("email", {
                     required: "Email is required",
                     pattern: {
