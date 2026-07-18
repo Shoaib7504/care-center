@@ -55,7 +55,7 @@ export const LogInUser = async (payload) => {
     
 }
 
-// Create user using Google
+
 // export const CreateUserUsingGoogle = async (payload) => {
 //     const { email, password, name, phone,nid } = payload;
 //     // Check payload email is exist or not

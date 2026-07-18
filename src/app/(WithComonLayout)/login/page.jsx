@@ -1,6 +1,6 @@
 "use client";
 import { signIn } from "next-auth/react"
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { ArrowRight, Eye, EyeOff, HeartPulse, Lock, Mail } from "lucide-react";
@@ -11,6 +11,10 @@ import { useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    document.title = "Log in | Care Center";
+  }, []);
   const router = useRouter()
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
@@ -119,12 +123,13 @@ export default function LoginPage() {
                     },
                   })}
                   aria-invalid={errors.email ? "true" : "false"}
+                  aria-describedby={errors.email ? "login-email-error" : undefined}
                   className="pl-10.5 w-full rounded-xl border border-input bg-background text-foreground px-3.5 py-2 text-sm placeholder:text-muted-foreground transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   placeholder="you@email.com"
                 />
               </div>
               {errors.email && (
-                <p className="mt-1.5 text-xs font-medium text-destructive">
+                <p id="login-email-error" className="mt-1.5 text-xs font-medium text-destructive" role="alert">
                   {errors.email.message}
                 </p>
               )}
@@ -149,6 +154,7 @@ export default function LoginPage() {
                     },
                   })}
                   aria-invalid={errors.password ? "true" : "false"}
+                  aria-describedby={errors.password ? "login-pw-error" : undefined}
                   className="pl-10.5 pr-10.5 w-full rounded-xl border border-input bg-background text-foreground px-3.5 py-2 text-sm placeholder:text-muted-foreground transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   placeholder="••••••••"
                 />
@@ -166,7 +172,7 @@ export default function LoginPage() {
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1.5 text-xs font-medium text-destructive">
+                <p id="login-pw-error" className="mt-1.5 text-xs font-medium text-destructive" role="alert">
                   {errors.password.message}
                 </p>
               )}

@@ -121,7 +121,7 @@ const Banner = () => {
                             className="mt-10 flex items-center gap-6 text-sm text-muted-foreground"
                         >
                             {/* Avatar stack — uses .gradient-primary from your CSS */}
-                            <div className="flex -space-x-2">
+                            <div className="flex -space-x-2" aria-hidden>
                                 {[1, 2, 3, 4].map(i => (
                                     <div
                                         key={i}
@@ -160,7 +160,7 @@ const Banner = () => {
                                 src={heroImg}
                                 width={500}
                                 height={500}
-                                alt="Picture of the author"
+                                alt="A caregiver smiling with an elderly woman in a bright, cozy living room"
                             />
                         </div>
 

@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import toast from "react-hot-toast";
 
 const links = [
   { to: "/", label: "Home" },
@@ -87,17 +88,38 @@ const Navbar = () => {
   }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setOpen(false);
   }, [path]);
 
-  const initials = session?.user?.name
-    ? session.user.name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
-    : "U";
+  const handleNav = (label, href) => (e) => {
+    setProfileOpen(false);
+    setOpen(false);
+    const messages = {
+      Home: "🏠 Going to homepage",
+      About: "ℹ️ Learn about us",
+      Services: "🛠️ Explore our services",
+      Testimonials: "⭐ See what clients say",
+      MyBooking: "📋 View your bookings",
+      "My Bookings": "📋 Opening your bookings",
+      Upcoming: "📅 Checking upcoming visits",
+      "Past Bookings": "📜 Reviewing past bookings",
+      Favorites: "❤️ Viewing your favorites",
+      "My Profile": "👤 Opening your profile",
+      Dashboard: "📊 Loading dashboard",
+      Settings: "⚙️ Opening settings",
+      "Payment Methods": "💳 Managing payments",
+      "Help Center": "❓ Opening help center",
+      "Contact Us": "📬 Opening contact form",
+      Notifications: "🔔 Viewing notifications",
+    };
+    toast.success(messages[label] || `→ Navigating to ${label}`, {
+      duration: 2000,
+    });
+    if (href) {
+      // Navigation happens via the Link component naturally
+    }
+  };
 
   if (status === "loading") {
     return (
@@ -136,6 +158,8 @@ const Navbar = () => {
               <li key={l.to}>
                 <Link
                   href={l.to}
+                  aria-current={active ? "page" : undefined}
+                  onClick={handleNav(l.label, l.to)}
                   className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                     active
                       ? "bg-primary-soft text-primary"
@@ -154,11 +178,18 @@ const Navbar = () => {
             <button
               ref={toggleRef}
               onClick={() => setProfileOpen((o) => !o)}
+              aria-expanded={profileOpen}
+              aria-haspopup="true"
+              aria-controls="profile-dropdown"
               className="group flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium transition-colors hover:bg-muted"
             >
-              <span className="grid h-8 w-8 place-items-center rounded-full bg-primary text-xs font-semibold text-primary-foreground ring-2 ring-primary/20 transition-shadow group-hover:ring-primary/40">
-                {initials}
-              </span>
+              <div className="h-8 w-8 rounded-full overflow-hidden ring-2 ring-primary/20 transition-shadow group-hover:ring-primary/40">
+                <img
+                  alt={session.user.name || "User"}
+                  src={session.user.image || "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"}
+                  className="h-full w-full object-cover"
+                />
+              </div>
               <span className="max-w-[100px] truncate text-foreground">
                 {session.user.name}
               </span>
@@ -170,13 +201,17 @@ const Navbar = () => {
             </button>
 
             {profileOpen && (
-              <div className="absolute right-0 top-full mt-2 w-[640px] origin-top-right animate-fade-in rounded-2xl border bg-card p-0 shadow-card overflow-hidden">
+              <div id="profile-dropdown" className="absolute right-0 top-full mt-2 w-[640px] origin-top-right animate-fade-in rounded-2xl border bg-card p-0 shadow-card overflow-hidden">
                 <div className="grid grid-cols-[1fr_2fr]">
                   <div className="bg-gradient-to-b from-primary/5 to-transparent p-5 border-r border-border">
                     <div className="flex flex-col items-center text-center">
-                      <span className="mb-3 grid h-16 w-16 place-items-center rounded-full bg-gradient-to-br from-primary to-secondary text-xl font-bold text-primary-foreground shadow-soft ring-4 ring-primary/10">
-                        {initials}
-                      </span>
+                      <div className="mb-3 h-16 w-16 rounded-full overflow-hidden ring-4 ring-primary/10 shadow-soft">
+                        <img
+                          alt={session.user.name || "User"}
+                          src={session.user.image || "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
                       <p className="text-sm font-semibold text-foreground">
                         {session.user.name}
                       </p>
@@ -191,7 +226,7 @@ const Navbar = () => {
                     <div className="mt-4 space-y-1">
                       <Link
                         href="/profile"
-                        onClick={() => setProfileOpen(false)}
+                        onClick={handleNav("My Profile", "/profile")}
                         className="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium text-foreground/80 transition-colors hover:bg-primary/10 hover:text-foreground"
                       >
                         <span className="flex items-center gap-2.5">
@@ -202,7 +237,7 @@ const Navbar = () => {
                       </Link>
                       <Link
                         href="/settings"
-                        onClick={() => setProfileOpen(false)}
+                        onClick={handleNav("Settings", "/settings")}
                         className="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium text-foreground/80 transition-colors hover:bg-primary/10 hover:text-foreground"
                       >
                         <span className="flex items-center gap-2.5">
@@ -225,7 +260,7 @@ const Navbar = () => {
                             <Link
                               key={item.href}
                               href={item.href}
-                              onClick={() => setProfileOpen(false)}
+                              onClick={handleNav(item.label, item.href)}
                               className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-muted hover:text-foreground"
                             >
                               <item.icon className="h-4 w-4 text-muted-foreground" />
@@ -243,7 +278,7 @@ const Navbar = () => {
                             <Link
                               key={item.href}
                               href={item.href}
-                              onClick={() => setProfileOpen(false)}
+                              onClick={handleNav(item.label, item.href)}
                               className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-muted hover:text-foreground"
                             >
                               <item.icon className="h-4 w-4 text-muted-foreground" />
@@ -263,7 +298,7 @@ const Navbar = () => {
                           <Link
                             key={item.href}
                             href={item.href}
-                            onClick={() => setProfileOpen(false)}
+                            onClick={handleNav(item.label, item.href)}
                             className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-foreground/70 transition-colors hover:bg-muted hover:text-foreground"
                           >
                             <item.icon className="h-4 w-4 text-muted-foreground" />
@@ -277,7 +312,7 @@ const Navbar = () => {
                       <div className="mt-3 border-t border-border pt-3">
                         <Link
                           href="/admin"
-                          onClick={() => setProfileOpen(false)}
+                          onClick={handleNav("Admin Panel", "/admin")}
                           className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-accent-foreground/80 transition-colors hover:bg-accent/20 hover:text-accent-foreground"
                         >
                           <ShieldCheck className="h-4 w-4" />
@@ -320,6 +355,8 @@ const Navbar = () => {
 
         <button
           aria-label={open ? "Close menu" : "Open menu"}
+          aria-expanded={open}
+          aria-controls="mobile-menu"
           className="md:hidden grid h-10 w-10 place-items-center rounded-full hover:bg-muted"
           onClick={() => setOpen((o) => !o)}
         >
@@ -328,13 +365,17 @@ const Navbar = () => {
       </nav>
 
       {open && (
-        <div className="md:hidden border-t bg-background/95 backdrop-blur">
+        <div id="mobile-menu" className="md:hidden border-t bg-background/95 backdrop-blur">
           <div className="px-4 py-3 flex flex-col gap-1">
             {status === "authenticated" && (
               <div className="flex items-center gap-3 rounded-xl px-4 py-3 mb-2 bg-gradient-to-r from-primary/5 to-transparent">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-primary to-secondary text-sm font-semibold text-primary-foreground">
-                  {initials}
-                </span>
+                <div className="h-10 w-10 shrink-0 rounded-full overflow-hidden">
+                  <img
+                    alt={session.user.name || "User"}
+                    src={session.user.image || "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-foreground">
                     {session.user.name}
@@ -346,16 +387,21 @@ const Navbar = () => {
               </div>
             )}
 
-            {links.map((l) => (
-              <Link
-                key={l.to}
-                href={l.to}
-                onClick={() => setOpen(false)}
-                className="rounded-lg px-4 py-3 text-sm font-medium hover:bg-muted"
-              >
-                {l.label}
-              </Link>
-            ))}
+            {links.map((l) => {
+              const active =
+                path === l.to || (l.to !== "/" && path.startsWith(l.to));
+              return (
+                <Link
+                  key={l.to}
+                  href={l.to}
+                  aria-current={active ? "page" : undefined}
+                  onClick={(e) => { setOpen(false); handleNav(l.label, l.to)(e); }}
+                  className="rounded-lg px-4 py-3 text-sm font-medium hover:bg-muted"
+                >
+                  {l.label}
+                </Link>
+              );
+            })}
 
             {status === "authenticated" ? (
               <>
@@ -367,7 +413,7 @@ const Navbar = () => {
                   <Link
                     key={item.href}
                     href={item.href}
-                    onClick={() => setOpen(false)}
+                    onClick={(e) => { setOpen(false); handleNav(item.label, item.href)(e); }}
                     className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium hover:bg-muted"
                   >
                     <item.icon className="h-4 w-4 text-muted-foreground" />
@@ -381,7 +427,7 @@ const Navbar = () => {
                   <Link
                     key={item.href}
                     href={item.href}
-                    onClick={() => setOpen(false)}
+                    onClick={(e) => { setOpen(false); handleNav(item.label, item.href)(e); }}
                     className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium hover:bg-muted"
                   >
                     <item.icon className="h-4 w-4 text-muted-foreground" />
@@ -391,7 +437,7 @@ const Navbar = () => {
                 {session.user.role === "admin" && (
                   <Link
                     href="/admin"
-                    onClick={() => setOpen(false)}
+                    onClick={(e) => { setOpen(false); handleNav("Admin Panel", "/admin")(e); }}
                     className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-accent-foreground/80 hover:bg-accent/20"
                   >
                     <ShieldCheck className="h-4 w-4" />

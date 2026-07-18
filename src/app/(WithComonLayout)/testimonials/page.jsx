@@ -2,7 +2,23 @@ import { Quote, Star } from 'lucide-react';
 import React from 'react';
 export const metadata = {
     title: "Testimonials",
-    description: "Heartfelt stories from families who found peace with Care.xyz",
+    description: "Heartfelt stories from families who found peace with Care Center. Read real reviews from families who trusted our caregivers.",
+
+    alternates: {
+        canonical: "/testimonials",
+    },
+
+    openGraph: {
+        title: "Testimonials | Care Center",
+        description: "Heartfelt stories from families who found peace with Care Center.",
+        url: "/testimonials",
+    },
+
+    twitter: {
+        card: "summary_large_image",
+        title: "Testimonials | Care Center",
+        description: "Heartfelt stories from families who found peace with Care Center.",
+    },
 }
 const Testimonials = () => {
     const items = [

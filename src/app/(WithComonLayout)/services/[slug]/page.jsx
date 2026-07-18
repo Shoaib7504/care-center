@@ -5,10 +5,35 @@ import Image from 'next/image';
 import { getSingleProduct, getProducts } from '@/action/server/products';
 import BookButton from '@/Components/BookButton';
 
-export const metadata = {
-  title: "Service Details | Care Center",
-  description: "Learn more about this service and book a vetted caregiver.",
-};
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+  const product = await getSingleProduct(slug);
+
+  if (!product) {
+    return {
+      title: "Service Not Found",
+      description: "The requested service could not be found.",
+    };
+  }
+
+  return {
+    title: product.title,
+    description: product.tagline || `Book ${product.title} — a vetted caregiver service starting at $${product.pricePerHour}/hr.`,
+    alternates: {
+      canonical: `/services/${slug}`,
+    },
+    openGraph: {
+      title: `${product.title} | Care Center`,
+      description: product.tagline || `Book ${product.title} starting at $${product.pricePerHour}/hr.`,
+      images: product.image ? [{ url: product.image, width: 1024, height: 768, alt: product.title }] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.title} | Care Center`,
+      description: product.tagline || `Book ${product.title} starting at $${product.pricePerHour}/hr.`,
+    },
+  };
+}
 
 const ServiceDetails = async ({ params }) => {
   const { slug } = await params;

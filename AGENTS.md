@@ -64,6 +64,26 @@ Use custom utility classes from `globals.css` (`.glass`, `.gradient-primary`, `.
 - **Loading state**: `src/app/loading.jsx` is a basic text placeholder.
 - **`not-found` page**: bare-bones, no navbar/footer (renders outside the route-group layout).
 
+## SEO
+
+| Asset | Location | Description |
+|-------|----------|-------------|
+| Sitemap | `src/app/sitemap.js` | Dynamic XML sitemap (static routes + all MongoDB service products). Served at `/sitemap.xml`. |
+| Robots | `src/app/robots.js` | `robots.txt` — allows all, disallows `/api/` and `/booking`, references sitemap. Served at `/robots.txt`. |
+| JSON-LD | `src/Components/JsonLd.jsx` | Injected in root layout: `Organization`, `WebSite` (with `SearchAction`), `LocalBusiness` schemas. |
+| OG image | `/og-image.jpg` | Reference in metadata — **must add a real 1200×630 image** to `public/og-image.jpg`. Current build fallback is local. |
+
+### Metadata conventions
+
+- **Static pages**: export `metadata` object with `title`, `description`, `alternates.canonical`, `openGraph`, `twitter`.
+- **Dynamic pages** (`[slug]`): export `async generateMetadata({ params })` — fetches product and generates per-item metadata with dynamic title/description/OG image.
+- **Client components**: cannot export `metadata`. Use `useEffect(() => { document.title = "..." }, [])` as fallback.
+- **Title template**: root layout uses `"%s | Care Center"`. Page titles should NOT include the suffix (e.g. `"Services"` not `"Services | Care Center"`).
+- **Booking pages** (`/booking/*`): set `robots: { index: false }` — user-specific content.
+
+### Verification
+Google Search Console verification via `NEXT_PUBLIC_GOOGLE_VERIFICATION` env var (currently empty string fallback).
+
 ## Linting
 
 ESLint flat config (`eslint.config.mjs`) using `eslint-config-next/core-web-vitals`. Ignores: `.next/`, `out/`, `build/`, `next-env.d.ts`.

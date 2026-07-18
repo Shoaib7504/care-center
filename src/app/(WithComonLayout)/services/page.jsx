@@ -5,14 +5,19 @@ import Image from 'next/image';
 import { getProducts } from '@/action/server/products';
 
 export const metadata = {
-  title: "Services | Care Center",
+  title: "Services",
   description:
     "Browse babysitting, elderly care, and home nursing services from vetted, experienced caregivers at Care Center.",
+
+  alternates: {
+    canonical: "/services",
+  },
 
   openGraph: {
     title: "Services | Care Center",
     description:
       "Browse babysitting, elderly care, and home nursing services from vetted, experienced caregivers.",
+    url: "/services",
     images: [
       {
         url: "/images/services-og.jpg",

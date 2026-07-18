@@ -8,8 +8,26 @@ const nextConfig = {
         hostname: 'care-village-app.lovable.app',
         pathname: '/**',
       },
-      // add more entries here if your MongoDB image URLs
-      // come from other hosts too (e.g. Cloudinary, S3, etc.)
+      {
+        protocol: 'https',
+        hostname: '**.cloudinary.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.amazonaws.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+        pathname: '/**',
+      },
     ],
   },
 }

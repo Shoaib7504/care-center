@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import {
@@ -22,6 +22,10 @@ import GooleSingInButton from "@/Components/GooleSingInButton";
 
 export default function RegisterPage() {
   const [showPw, setShowPw] = useState(false);
+
+  useEffect(() => {
+    document.title = "Create Account | Care Center";
+  }, []);
   const [showPw2, setShowPw2] = useState(false);
   const router = useRouter()
   // react-hook-form setup
@@ -92,12 +96,13 @@ export default function RegisterPage() {
                   type="text"
                   {...register("name", { required: "Full name is required" })}
                   aria-invalid={errors.name ? "true" : "false"}
+                  aria-describedby={errors.name ? "reg-name-error" : undefined}
                   placeholder="Jane Doe"
                   className="pl-10.5 w-full rounded-xl border border-input bg-background text-foreground px-3.5 py-2 text-sm placeholder:text-muted-foreground transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 />
               </div>
               {errors.name && (
-                <p className="mt-1.5 text-xs font-medium text-destructive">{errors.name.message}</p>
+                <p id="reg-name-error" className="mt-1.5 text-xs font-medium text-destructive" role="alert">{errors.name.message}</p>
               )}
             </div>
 
@@ -113,12 +118,13 @@ export default function RegisterPage() {
                   type="text"
                   {...register("nid", { required: "NID number is required" })}
                   aria-invalid={errors.nid ? "true" : "false"}
+                  aria-describedby={errors.nid ? "reg-nid-error" : undefined}
                   placeholder="1234567890"
                   className="pl-10.5 w-full rounded-xl border border-input bg-background text-foreground px-3.5 py-2 text-sm placeholder:text-muted-foreground transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 />
               </div>
               {errors.nid && (
-                <p className="mt-1.5 text-xs font-medium text-destructive">{errors.nid.message}</p>
+                <p id="reg-nid-error" className="mt-1.5 text-xs font-medium text-destructive" role="alert">{errors.nid.message}</p>
               )}
             </div>
 
@@ -141,12 +147,13 @@ export default function RegisterPage() {
                     },
                   })}
                   aria-invalid={errors.email ? "true" : "false"}
+                  aria-describedby={errors.email ? "reg-email-error" : undefined}
                   placeholder="you@email.com"
                   className="pl-10.5 w-full rounded-xl border border-input text-foreground px-3.5 py-2 text-sm placeholder:text-muted-foreground transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 />
               </div>
               {errors.email && (
-                <p className="mt-1.5 text-xs font-medium text-destructive">{errors.email.message}</p>
+                <p id="reg-email-error" className="mt-1.5 text-xs font-medium text-destructive" role="alert">{errors.email.message}</p>
               )}
             </div>
 
@@ -162,12 +169,13 @@ export default function RegisterPage() {
                   type="tel"
                   {...register("phone", { required: "Contact number is required" })}
                   aria-invalid={errors.phone ? "true" : "false"}
+                  aria-describedby={errors.phone ? "reg-phone-error" : undefined}
                   placeholder="+1 555 000 0000"
                   className="pl-10.5 w-full rounded-xl border border-input bg-background text-foreground px-3.5 py-2 text-sm placeholder:text-muted-foreground transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 />
               </div>
               {errors.phone && (
-                <p className="mt-1.5 text-xs font-medium text-destructive">{errors.phone.message}</p>
+                <p id="reg-phone-error" className="mt-1.5 text-xs font-medium text-destructive" role="alert">{errors.phone.message}</p>
               )}
             </div>
 
@@ -186,6 +194,7 @@ export default function RegisterPage() {
                     minLength: { value: 6, message: "Must be at least 6 characters" },
                   })}
                   aria-invalid={errors.password ? "true" : "false"}
+                  aria-describedby={errors.password ? "reg-pw-error" : undefined}
                   placeholder="At least 6 chars"
                   className="pl-10.5 pr-10.5 w-full rounded-xl border border-input bg-background text-foreground px-3.5 py-2 text-sm placeholder:text-muted-foreground transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 />
@@ -199,7 +208,7 @@ export default function RegisterPage() {
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1.5 text-xs font-medium text-destructive">{errors.password.message}</p>
+                <p id="reg-pw-error" className="mt-1.5 text-xs font-medium text-destructive" role="alert">{errors.password.message}</p>
               )}
             </div>
 
@@ -218,6 +227,7 @@ export default function RegisterPage() {
                     validate: (value) => value === pw || "Passwords do not match",
                   })}
                   aria-invalid={errors.confirmPassword ? "true" : "false"}
+                  aria-describedby={errors.confirmPassword ? "reg-pw2-error" : undefined}
                   placeholder="Repeat password"
                   className="pl-10.5 pr-10.5 w-full rounded-xl border border-input bg-background text-foreground px-3.5 py-2 text-sm placeholder:text-muted-foreground transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 />
@@ -231,12 +241,12 @@ export default function RegisterPage() {
                 </button>
               </div>
               {errors.confirmPassword && (
-                <p className="mt-1.5 text-xs font-medium text-destructive">{errors.confirmPassword.message}</p>
+                <p id="reg-pw2-error" className="mt-1.5 text-xs font-medium text-destructive" role="alert">{errors.confirmPassword.message}</p>
               )}
             </div>
 
             {/* Requirement Checklist — still live via watch() */}
-            <ul className="text-xs space-y-1.5 grid grid-cols-2 gap-x-2 pt-1 select-none text-muted-foreground font-medium">
+            <ul aria-label="Password requirements" className="text-xs space-y-1.5 grid grid-cols-2 gap-x-2 pt-1 select-none text-muted-foreground font-medium">
               <li className="flex items-center gap-1.5">
                 <Check className={`h-3 w-3 ${pw?.length >= 6 ? "text-success" : "text-muted-foreground/40"}`} />
                 6+ characters

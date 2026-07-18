@@ -58,7 +58,7 @@ const Testimonials = () => {
 
                         {/* Author */}
                         <div className="mt-5 flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-full gradient-primary shrink-0" />
+                            <div className="h-10 w-10 rounded-full gradient-primary shrink-0" aria-hidden />
                             <div>
                                 <p className="font-semibold text-sm text-foreground">{t.name}</p>
                                 <p className="text-xs text-muted-foreground">{t.role}</p>

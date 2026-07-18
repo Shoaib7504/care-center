@@ -11,7 +11,23 @@ const values = [
 const delays = ['delay-300', 'delay-400', 'delay-500', 'delay-600'];
 export const metadata = {
   title: "About Us",
-  description: "Compassionate Care, Right at Your Doorstep.",
+  description: "Compassionate Care, Right at Your Doorstep. Learn the story behind Care Center and meet the team dedicated to connecting families with trusted caregivers.",
+
+  alternates: {
+    canonical: "/about",
+  },
+
+  openGraph: {
+    title: "About Us | Care Center",
+    description: "Compassionate Care, Right at Your Doorstep. Learn the story behind Care Center.",
+    url: "/about",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "About Us | Care Center",
+    description: "Compassionate Care, Right at Your Doorstep.",
+  },
 };
 const AboutUs = () => {
   return (

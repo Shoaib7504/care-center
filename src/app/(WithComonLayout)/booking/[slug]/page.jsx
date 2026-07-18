@@ -4,10 +4,27 @@ import BookingForm from "./BookingForm";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
-export const metadata = {
-  title: "Book a service — Care.xyz",
-  description: "Book a vetted caregiver in minutes.",
-};
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+  const result = await getSingleProduct(slug);
+  const service = Array.isArray(result) ? result[0] ?? null : result ?? null;
+
+  if (!service) {
+    return { title: "Booking Not Found", description: "The service for booking could not be found." };
+  }
+
+  return {
+    title: `Book ${service.title}`,
+    description: `Book ${service.title} — a vetted caregiver starting at $${service.pricePerHour}/hr. Easy online booking, insured care.`,
+    alternates: {
+      canonical: `/booking/${slug}`,
+    },
+    robots: {
+      index: false,
+      follow: true,
+    },
+  };
+}
 
 export default async function BookingPage({ params }) {
   // Next.js 16: params is a Promise — must await it

@@ -4,6 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useSession } from "next-auth/react";
+import { createBooking } from "@/action/server/bookingDetails";
 import {
   Clock,
   MapPin,
@@ -38,7 +40,7 @@ const inputCls =
   "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 transition-shadow";
 
 export default function BookingForm({ service }) {
-  //  Step / flow state (not form data)
+  const { data: session } = useSession();
   const [step, setStep] = useState(1);
   const [done, setDone] = useState(false);
 
@@ -88,15 +90,25 @@ export default function BookingForm({ service }) {
     if (valid) setStep((s) => s + 1);
   };
 
-  // Final submit handler — logs everything instead of calling an API
-  const onSubmit = (data) => {
-    console.log("Booking submitted:", {
-      ...data,
+  const onSubmit = async (data) => {
+    await createBooking({
+      userId: session?.user?.id,
+      userEmail: session?.user?.email,
+      userName: session?.user?.name,
+      serviceId: service?._id ?? service?.id,
+      serviceTitle: service?.title ?? null,
+      serviceImage: service?.image ?? null,
+      unit: data.unit,
+      qty: data.qty,
       hours,
+      division: data.division,
+      district: data.district,
+      city: data.city,
+      area: data.area,
+      address: data.address,
       subtotal,
       vat,
       total,
-      service: service?.title ?? null,
     });
     setDone(true);
   };
@@ -106,7 +118,7 @@ export default function BookingForm({ service }) {
 
       {/* Progress stepper */}
       {!done && (
-        <div className="mb-10 animate-fade-in">
+        <div className="mb-10 animate-fade-in" role="progressbar" aria-valuenow={step} aria-valuemin={1} aria-valuemax={STEPS.length} aria-label="Booking progress">
           <div className="flex items-center justify-between gap-2">
             {STEPS.map((st, i) => {
               const active = step >= st.id;
@@ -180,7 +192,7 @@ export default function BookingForm({ service }) {
           ) : (
             <div className="flex-1 flex flex-col">
               {/* key re-mounts on step change → CSS animate-fade-up re-fires */}
-              <div key={step} className="flex-1 animate-fade-up">
+              <div key={step} className="flex-1 animate-fade-up" aria-live="polite" aria-atomic="true">
 
                 {/* Step 1 · Duration */}
                 {step === 1 && (
@@ -271,10 +283,11 @@ export default function BookingForm({ service }) {
                           className={inputCls}
                           {...register("city", { required: "City is required" })}
                           aria-invalid={errors.city ? "true" : "false"}
+                          aria-describedby={errors.city ? "city-error" : undefined}
                           placeholder="e.g. Dhaka"
                         />
                         {errors.city && (
-                          <p className="mt-1 text-xs font-medium text-destructive">{errors.city.message}</p>
+                          <p id="city-error" className="mt-1 text-xs font-medium text-destructive" role="alert">{errors.city.message}</p>
                         )}
                       </div>
                       <div>
@@ -289,11 +302,12 @@ export default function BookingForm({ service }) {
                         rows={3}
                         {...register("address", { required: "Full address is required" })}
                         aria-invalid={errors.address ? "true" : "false"}
+                        aria-describedby={errors.address ? "address-error" : undefined}
                         placeholder="House, road, apartment, landmarks…"
                         className={`${inputCls} resize-none`}
                       />
                       {errors.address && (
-                        <p className="mt-1 text-xs font-medium text-destructive">{errors.address.message}</p>
+                        <p id="address-error" className="mt-1 text-xs font-medium text-destructive" role="alert">{errors.address.message}</p>
                       )}
                     </div>
                   </div>
@@ -343,10 +357,11 @@ export default function BookingForm({ service }) {
                           className={inputCls}
                           {...register("cardName", { required: "Cardholder name is required" })}
                           aria-invalid={errors.cardName ? "true" : "false"}
+                          aria-describedby={errors.cardName ? "cardName-error" : undefined}
                           placeholder="Jane Doe"
                         />
                         {errors.cardName && (
-                          <p className="mt-1 text-xs font-medium text-destructive">{errors.cardName.message}</p>
+                          <p id="cardName-error" className="mt-1 text-xs font-medium text-destructive" role="alert">{errors.cardName.message}</p>
                         )}
                       </div>
                       <div>
@@ -359,12 +374,13 @@ export default function BookingForm({ service }) {
                               v.replace(/\s/g, "").length >= 16 || "Enter a valid card number",
                           })}
                           aria-invalid={errors.cardNumber ? "true" : "false"}
+                          aria-describedby={errors.cardNumber ? "cardNumber-error" : undefined}
                           placeholder="1234 5678 9012 3456"
                           inputMode="numeric"
                           maxLength={19}
                         />
                         {errors.cardNumber && (
-                          <p className="mt-1 text-xs font-medium text-destructive">{errors.cardNumber.message}</p>
+                          <p id="cardNumber-error" className="mt-1 text-xs font-medium text-destructive" role="alert">{errors.cardNumber.message}</p>
                         )}
                       </div>
                       <div className="grid grid-cols-2 gap-4">
@@ -374,11 +390,12 @@ export default function BookingForm({ service }) {
                             className={inputCls}
                             {...register("cardExp", { required: "Required" })}
                             aria-invalid={errors.cardExp ? "true" : "false"}
+                            aria-describedby={errors.cardExp ? "cardExp-error" : undefined}
                             placeholder="12/27"
                             maxLength={5}
                           />
                           {errors.cardExp && (
-                            <p className="mt-1 text-xs font-medium text-destructive">{errors.cardExp.message}</p>
+                            <p id="cardExp-error" className="mt-1 text-xs font-medium text-destructive" role="alert">{errors.cardExp.message}</p>
                           )}
                         </div>
                         <div>
@@ -390,12 +407,13 @@ export default function BookingForm({ service }) {
                               minLength: { value: 3, message: "Too short" },
                             })}
                             aria-invalid={errors.cardCvc ? "true" : "false"}
+                            aria-describedby={errors.cardCvc ? "cardCvc-error" : undefined}
                             placeholder="123"
                             inputMode="numeric"
                             maxLength={4}
                           />
                           {errors.cardCvc && (
-                            <p className="mt-1 text-xs font-medium text-destructive">{errors.cardCvc.message}</p>
+                            <p id="cardCvc-error" className="mt-1 text-xs font-medium text-destructive" role="alert">{errors.cardCvc.message}</p>
                           )}
                         </div>
                       </div>

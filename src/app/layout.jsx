@@ -2,6 +2,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 import NextAuthProvider from "@/Provider/NextAuthProvider";
+import Providers from "@/Provider/Providers";
+import JsonLd from "@/Components/JsonLd";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,17 +24,20 @@ export const metadata = {
   },
 
   description:
-    "Care Center is your trusted healthcare platform for finding experienced doctors, booking appointments, exploring medical services, and receiving quality healthcare with ease.",
+    "Care Center connects families with trusted, vetted caregivers for babysitting, elderly care, and home nursing. Book compassionate care in minutes.",
 
   keywords: [
     "Care Center",
-    "Healthcare",
-    "Medical Services",
-    "Doctors",
-    "Appointment Booking",
-    "Hospital",
+    "Home Care Services",
+    "Babysitting",
+    "Elderly Care",
+    "Home Nursing",
+    "Caregivers",
+    "Vetted Caregivers",
+    "Childcare",
+    "Senior Care",
+    "In-Home Care",
     "Healthcare Platform",
-    "Medical Consultation",
     "Patient Care",
     "Health Services",
   ],
@@ -50,10 +55,6 @@ export const metadata = {
   publisher: "Care Center",
 
   category: "Healthcare",
-
-  alternates: {
-    canonical: "/",
-  },
 
   robots: {
     index: true,
@@ -79,14 +80,14 @@ export const metadata = {
     url: "https://care-center-liard.vercel.app",
     siteName: "Care Center",
 
-    title: "Care Center | Trusted Healthcare & Medical Services",
+    title: "Care Center | Trusted Home Care Services",
 
     description:
-      "Book appointments, connect with experienced doctors, and access quality healthcare services through Care Center.",
+      "Book trusted, vetted caregivers for babysitting, elderly care, and home nursing. Care Center connects your family with compassionate professionals.",
 
     images: [
       {
-        url: "https://ibb.co.com/JF287Rn6",
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Care Center Homepage",
@@ -97,16 +98,16 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
 
-    title: "Care Center | Trusted Healthcare Platform",
+    title: "Care Center | Trusted Home Care Services",
 
     description:
-      "Find doctors, book appointments, and access trusted healthcare services.",
+      "Find vetted caregivers, book babysitting or elderly care, and access trusted home care services.",
 
-    images: ["https://ibb.co.com/JF287Rn6"],
+    images: ["/og-image.jpg"],
   },
 
   verification: {
-    google: "YOUR_GOOGLE_SEARCH_CONSOLE_VERIFICATION",
+    google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION || "",
   },
 
   appleWebApp: {
@@ -133,8 +134,11 @@ export default function RootLayout({ children }) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <JsonLd />
         <NextAuthProvider>
-          {children}
+          <Providers>
+            {children}
+          </Providers>
         </NextAuthProvider>
         <Toaster
           position="top-right"

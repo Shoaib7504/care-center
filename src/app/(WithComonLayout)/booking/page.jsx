@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { LayoutGrid, List, MapPin, Calendar, Clock, Eye, X } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { LayoutGrid, List, MapPin, Calendar, Clock, Eye, X, Loader2 } from "lucide-react";
+import { getUserBookings, cancelBooking } from "@/action/server/bookingDetails";
 
-// Inline Badge component to replicate Shadcn Badge behavior using global styles
 function Badge({ className, children, ...props }) {
   return (
     <span
@@ -16,16 +17,15 @@ function Badge({ className, children, ...props }) {
   );
 }
 
-// Inline Button component to replicate Shadcn Button behavior using global styles
 function Button({ className, variant = "default", size = "default", asChild = false, children, ...props }) {
   const baseStyles = "inline-flex items-center justify-center font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer select-none";
-  
+
   const variants = {
     default: "bg-primary text-primary-foreground hover:opacity-90 shadow-soft",
     outline: "border border-border bg-background text-foreground hover:bg-muted",
     ghost: "hover:bg-muted text-foreground",
   };
-  
+
   const sizes = {
     default: "h-10 px-4 py-2 text-sm rounded-full",
     sm: "h-8 px-3 text-xs rounded-full",
@@ -48,13 +48,6 @@ function Button({ className, variant = "default", size = "default", asChild = fa
   );
 }
 
-const sampleBookings = [
-  { id: "BK-1042", service: "Elderly Care", date: "May 30, 2026", duration: "4 hrs/day · 14 days", location: "Gulshan, Dhaka", cost: 840, status: "Confirmed" },
-  { id: "BK-1039", service: "Babysitting", date: "May 24, 2026", duration: "5 hrs", location: "Banani, Dhaka", cost: 60, status: "Completed" },
-  { id: "BK-1035", service: "Home Nursing", date: "May 20, 2026", duration: "8 hrs", location: "Dhanmondi, Dhaka", cost: 176, status: "Pending" },
-  { id: "BK-1028", service: "Babysitting", date: "May 12, 2026", duration: "3 hrs", location: "Uttara, Dhaka", cost: 36, status: "Cancelled" },
-];
-
 const badgeStyles = {
   Pending: "bg-warning/15 text-warning border-warning/30",
   Confirmed: "bg-primary/15 text-primary border-primary/30",
@@ -73,12 +66,12 @@ const delayClasses = [
 ];
 
 export default function MyBookings() {
+  const { data: session, status } = useSession();
   const [view, setView] = useState("cards");
-  const [items, setItems] = useState(sampleBookings);
+  const [items, setItems] = useState(null);
 
-  // Set document title and SEO metadata on mount
   useEffect(() => {
-    document.title = "My bookings — Care.xyz";
+    document.title = "My bookings — Care Center";
     let meta = document.querySelector('meta[name="robots"]');
     if (!meta) {
       meta = document.createElement("meta");
@@ -88,15 +81,48 @@ export default function MyBookings() {
     }
   }, []);
 
-  const handleCancel = (id) => {
-    if (confirm(`Are you sure you want to cancel booking ${id}?`)) {
+  useEffect(() => {
+    if (status === "authenticated" && session?.user?.id) {
+      getUserBookings(session.user.id).then(setItems);
+    }
+  }, [status, session]);
+
+  const handleCancel = async (id) => {
+    if (confirm(`Are you sure you want to cancel this booking?`)) {
+      await cancelBooking(id, session?.user?.id);
       setItems((prev) =>
         prev.map((item) =>
-          item.id === id ? { ...item, status: "Cancelled" } : item
+          item._id === id ? { ...item, status: "Cancelled" } : item
         )
       );
     }
   };
+
+  if (status === "unauthenticated") {
+    return (
+      <div className="mx-auto max-w-2xl px-6 py-24 text-center animate-fade-in">
+        <div className="mx-auto mb-6 grid h-32 w-32 place-items-center rounded-full gradient-hero text-6xl shadow-soft">
+          🔒
+        </div>
+        <h1 className="text-2xl font-bold text-foreground">Sign in to view bookings</h1>
+        <p className="mt-2 text-muted-foreground">
+          Please sign in to see your booking history.
+        </p>
+        <Button asChild className="mt-6">
+          <Link href="/login">Sign in</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  if (items === null) {
+    return (
+      <div className="mx-auto max-w-2xl px-6 py-24 text-center animate-fade-in">
+        <Loader2 className="mx-auto h-10 w-10 animate-spin text-primary" />
+        <p className="mt-4 text-muted-foreground">Loading your bookings...</p>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
@@ -117,7 +143,6 @@ export default function MyBookings() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-      {/* Title Header with Fade In */}
       <div className="flex items-center justify-between flex-wrap gap-4 mb-8 animate-fade-in">
         <div>
           <h1 className="text-3xl font-bold text-foreground">My bookings</h1>
@@ -153,15 +178,15 @@ export default function MyBookings() {
         <div className="grid gap-5 md:grid-cols-2">
           {items.map((b, i) => (
             <div
-              key={b.id}
+              key={b._id}
               className={`animate-fade-up ${
                 delayClasses[i % delayClasses.length]
               } rounded-3xl border bg-card p-6 shadow-card hover:shadow-glow transition-all duration-300`}
             >
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-xs text-muted-foreground">{b.id}</p>
-                  <h3 className="font-bold text-lg mt-0.5 text-foreground">{b.service}</h3>
+                  <p className="text-xs text-muted-foreground">{b._id?.slice(-6)?.toUpperCase()}</p>
+                  <h3 className="font-bold text-lg mt-0.5 text-foreground">{b.serviceTitle}</h3>
                 </div>
                 <Badge className={badgeStyles[b.status]}>
                   {b.status}
@@ -169,19 +194,19 @@ export default function MyBookings() {
               </div>
               <ul className="mt-5 space-y-2 text-sm">
                 <li className="flex items-center gap-2 text-muted-foreground">
-                  <Calendar className="h-4 w-4 text-primary" /> {b.date}
+                  <Calendar className="h-4 w-4 text-primary" /> {new Date(b.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                 </li>
                 <li className="flex items-center gap-2 text-muted-foreground">
-                  <Clock className="h-4 w-4 text-primary" /> {b.duration}
+                  <Clock className="h-4 w-4 text-primary" /> {b.hours} hrs{b.unit === "days" ? ` · ${b.qty} days` : ""}
                 </li>
                 <li className="flex items-center gap-2 text-muted-foreground">
-                  <MapPin className="h-4 w-4 text-primary" /> {b.location}
+                  <MapPin className="h-4 w-4 text-primary" /> {b.area ? `${b.area}, ` : ""}{b.city}
                 </li>
               </ul>
               <div className="mt-5 pt-5 border-t flex items-center justify-between">
                 <div>
                   <p className="text-xs text-muted-foreground">Total</p>
-                  <p className="font-bold text-lg gradient-text">${b.cost}</p>
+                  <p className="font-bold text-lg gradient-text">${b.total?.toFixed(2)}</p>
                 </div>
                 <div className="flex gap-2">
                   <Button size="sm" variant="outline" className="gap-1">
@@ -191,7 +216,7 @@ export default function MyBookings() {
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => handleCancel(b.id)}
+                      onClick={() => handleCancel(b._id)}
                       className="text-destructive hover:bg-destructive/10 hover:text-destructive gap-1"
                     >
                       <X className="h-3.5 w-3.5" /> Cancel
@@ -217,13 +242,15 @@ export default function MyBookings() {
               </thead>
               <tbody className="divide-y divide-border">
                 {items.map((b) => (
-                  <tr key={b.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-6 py-4 font-medium text-foreground">{b.id}</td>
-                    <td className="px-6 py-4 text-foreground font-semibold">{b.service}</td>
-                    <td className="px-6 py-4 text-muted-foreground">{b.date}</td>
-                    <td className="px-6 py-4 text-muted-foreground">{b.duration}</td>
-                    <td className="px-6 py-4 text-muted-foreground">{b.location}</td>
-                    <td className="px-6 py-4 font-semibold text-foreground">${b.cost}</td>
+                  <tr key={b._id} className="hover:bg-muted/30 transition-colors">
+                    <td className="px-6 py-4 font-medium text-foreground">{b._id?.slice(-6)?.toUpperCase()}</td>
+                    <td className="px-6 py-4 text-foreground font-semibold">{b.serviceTitle}</td>
+                    <td className="px-6 py-4 text-muted-foreground">
+                      {new Date(b.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                    </td>
+                    <td className="px-6 py-4 text-muted-foreground">{b.hours} hrs{b.unit === "days" ? ` · ${b.qty} days` : ""}</td>
+                    <td className="px-6 py-4 text-muted-foreground">{b.area ? `${b.area}, ` : ""}{b.city}</td>
+                    <td className="px-6 py-4 font-semibold text-foreground">${b.total?.toFixed(2)}</td>
                     <td className="px-6 py-4">
                       <Badge className={badgeStyles[b.status]}>
                         {b.status}
@@ -238,7 +265,7 @@ export default function MyBookings() {
                           <Button
                             size="sm"
                             variant="ghost"
-                            onClick={() => handleCancel(b.id)}
+                            onClick={() => handleCancel(b._id)}
                             className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                           >
                             Cancel
@@ -255,4 +282,4 @@ export default function MyBookings() {
       )}
     </div>
   );
-}
+}

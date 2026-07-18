@@ -3,6 +3,7 @@ import { MongoClient, ServerApiVersion } from "mongodb";
 export const collections = {
   PRODUCTS: "products",
   USERS: "users",
+  BOOKINGS: "bookings",
 };
 
 // Lazily initialized — built on first call so env vars are resolved at
