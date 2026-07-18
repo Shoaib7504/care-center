@@ -92,7 +92,28 @@ const Navbar = () => {
     setOpen(false);
   }, [path]);
 
+  const noNavItems = new Set([
+    "Settings",
+    "Payment Methods",
+    "Help Center",
+    "Contact Us",
+    "Notifications",
+  ]);
+
+  const comingSoonMessages = {
+    Settings: "⚙️ Settings — Coming Soon! We're working on personalization options.",
+    "Payment Methods": "💳 Payment Methods — Coming Soon! Secure checkout is almost here.",
+    "Help Center": "❓ Help Center — Coming Soon! We're building a knowledge base.",
+    "Contact Us": "📬 Contact Us — Coming Soon! Reach us directly in the next update.",
+    Notifications: "🔔 Notifications — Coming Soon! Stay tuned for real-time alerts.",
+  };
+
   const handleNav = (label, href) => (e) => {
+    if (noNavItems.has(label)) {
+      e.preventDefault();
+      toast.success(comingSoonMessages[label], { duration: 3000 });
+      return;
+    }
     setProfileOpen(false);
     setOpen(false);
     const messages = {
@@ -107,18 +128,10 @@ const Navbar = () => {
       Favorites: "❤️ Viewing your favorites",
       "My Profile": "👤 Opening your profile",
       Dashboard: "📊 Loading dashboard",
-      Settings: "⚙️ Opening settings",
-      "Payment Methods": "💳 Managing payments",
-      "Help Center": "❓ Opening help center",
-      "Contact Us": "📬 Opening contact form",
-      Notifications: "🔔 Viewing notifications",
     };
     toast.success(messages[label] || `→ Navigating to ${label}`, {
       duration: 2000,
     });
-    if (href) {
-      // Navigation happens via the Link component naturally
-    }
   };
 
   if (status === "loading") {
@@ -247,7 +260,7 @@ const Navbar = () => {
                         <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
                       </Link>
                       <Link
-                        href="/settings"
+                        href="/"
                         onClick={handleNav("Settings", "/settings")}
                         className="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium text-foreground/80 transition-colors hover:bg-primary/10 hover:text-foreground"
                       >
