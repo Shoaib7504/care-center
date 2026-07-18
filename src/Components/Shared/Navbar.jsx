@@ -162,7 +162,7 @@ const Navbar = () => {
                   onClick={handleNav(l.label, l.to)}
                   className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
                     active
-                      ? "bg-primary-soft text-primary"
+                      ? "bg-primary-soft text-foreground"
                       : "text-foreground/70 hover:text-foreground hover:bg-muted"
                   }`}
                 >

@@ -31,9 +31,9 @@ const WhyUs = () => {
 
                 {/* Section header */}
                 <div className="text-center max-w-2xl mx-auto mb-14">
-                    <span className="text-sm font-semibold uppercase tracking-wider text-secondary">
-                        Why Care.xyz
-                    </span>
+<span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+    Why Care.xyz
+</span>
                     <h2 className="mt-2 text-3xl sm:text-4xl font-bold text-foreground">
                         Peace of mind, built in
                     </h2>

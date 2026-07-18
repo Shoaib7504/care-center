@@ -47,10 +47,28 @@ client component  →  server action (src/action/server/)  →  MongoDB (src/app
 
 - `src/app/layout.jsx` — root layout (`.jsx` extension, provides `<html>`/`<body>`, fonts, metadata).
 - `src/app/(WithComonLayout)/layout.jsx` — route-group layout (Navbar + Footer, wraps most pages).
-- `src/Components/` — capitalized, shared components in `Shared/` subfolder (Navbar, Footer).
+- `src/app/dashboard/layout.jsx` — dashboard layout (sidebar, no navbar/footer), route group at `/dashboard`.
+- `src/Components/` — capitalized, shared components in `Shared/` and `Dashboard/` subfolders.
+- `src/Components/Dashboard/` — dashboard-specific components (Sidebar, StatCard, DonutChart, BarChart).
 - `src/assets/` — local images imported via `@/assets/...`.
 - `src/app/lib/` — dbConnect, authOption (not `src/lib/`).
 - Path alias `@/*` → `./src/*` (jsconfig.json, no TypeScript).
+
+## Dashboard (`/dashboard`)
+
+Admin dashboard with sidebar layout. Routes:
+
+| Route | Description |
+|-------|-------------|
+| `/dashboard` | Overview — stat cards, booking status donut chart, revenue bar chart, recent bookings/users |
+| `/dashboard/bookings` | Full bookings table with search, status updates, delete |
+| `/dashboard/users` | Full users table with search, role management, delete |
+| `/dashboard/settings` | Profile info & dashboard preferences |
+
+- **Layout**: `src/app/dashboard/layout.jsx` — client component with session guard, no Navbar/Footer.
+- **All pages** use `adminGetAllUsers()` and `adminGetAllBookings()` from `src/action/server/admin.js`.
+- **Sidebar** navigation collapses on desktop, slides in on mobile.
+- `/admin` (legacy) remains functional at `src/app/(WithComonLayout)/admin/page.jsx`.
 
 ## Styling
 

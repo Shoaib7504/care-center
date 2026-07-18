@@ -78,7 +78,7 @@ export function Footer() {
 
         {/* Services Links */}
         <div>
-          <h4 className="font-semibold mb-4">Services</h4>
+          <h3 className="font-semibold mb-4">Services</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li><Link href="/service/babysitting" className="hover:text-primary">Babysitting</Link></li>
             <li><Link href="/service/elderly-care" className="hover:text-primary">Elderly Care</Link></li>
@@ -88,7 +88,7 @@ export function Footer() {
 
         {/* Company Links */}
         <div>
-          <h4 className="font-semibold mb-4">Company</h4>
+          <h3 className="font-semibold mb-4">Company</h3>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li><Link href="/about" className="hover:text-primary">About</Link></li>
             <li><Link href="/testimonials" className="hover:text-primary">Testimonials</Link></li>
@@ -99,7 +99,7 @@ export function Footer() {
 
         {/* Contact Info */}
         <div>
-          <h4 className="font-semibold mb-4">Contact</h4>
+          <h3 className="font-semibold mb-4">Contact</h3>
           <ul className="space-y-3 text-sm text-muted-foreground">
             <li className="flex items-center gap-2">
               <Mail className="h-4 w-4 text-primary" /> 

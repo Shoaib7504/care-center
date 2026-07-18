@@ -25,9 +25,9 @@ const Testimonials = () => {
 
             {/* Header */}
             <div className="text-center max-w-2xl mx-auto mb-14">
-                <span className="text-sm font-semibold uppercase tracking-wider text-accent">
-                    Stories of care
-                </span>
+<span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+    Stories of care
+</span>
                 <h2 className="mt-2 text-3xl sm:text-4xl font-bold text-foreground">
                     Loved by families everywhere
                 </h2>

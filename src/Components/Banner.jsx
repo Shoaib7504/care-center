@@ -160,6 +160,7 @@ const Banner = () => {
                                 src={heroImg}
                                 width={500}
                                 height={500}
+                                preload={true}
                                 alt="A caregiver smiling with an elderly woman in a bright, cozy living room"
                             />
                         </div>

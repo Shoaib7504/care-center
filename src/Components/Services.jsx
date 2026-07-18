@@ -21,9 +21,9 @@ const Services = async () => {
     <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
       {/* Section header */}
       <div className="text-center max-w-2xl mx-auto mb-14">
-        <span className="text-sm font-semibold uppercase tracking-wider text-primary">
-          Our Services
-        </span>
+<span className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+    Our Services
+</span>
         <h2 className="mt-2 text-3xl sm:text-4xl font-bold text-foreground">
           Care that fits every chapter of life
         </h2>
@@ -80,7 +80,7 @@ const Services = async () => {
                   </div>
                 </div>
 
-                <p className="text-sm text-primary font-medium mt-3">{s.tagline}</p>
+                <p className="text-sm text-foreground/80 font-medium mt-3">{s.tagline}</p>
                 <p className="text-sm mt-2 text-muted-foreground line-clamp-2">
                   {s.description}
                 </p>
@@ -95,7 +95,7 @@ const Services = async () => {
 
                   <Link
                     href={`/services/${s.id || s._id}`}
-                    className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-primary bg-primary-soft hover:shadow-soft transition-all duration-200 hover:-translate-y-0.5"
+                    className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-foreground bg-primary-soft hover:bg-primary hover:text-primary-foreground hover:shadow-soft transition-all duration-200 hover:-translate-y-0.5"
                   >
                     View details <ArrowRight className="h-4 w-4" />
                   </Link>
