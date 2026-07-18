@@ -63,16 +63,22 @@ export const authOptions = {
       return session;
     },
     async jwt({ token, user }) {
-      if (user) {
+      const email = user?.email || token.email;
+      if (email) {
         try {
           const usersCollection = await dbConnect(collections.USERS);
-          const dbUser = await usersCollection.findOne({ email: user.email });
-          token.id = dbUser?._id?.toString() || user.id;
-          token.role = dbUser?.role || "user";
+          const dbUser = await usersCollection.findOne({ email });
+          if (dbUser) {
+            token.id = dbUser._id.toString();
+            token.role = dbUser.role || "user";
+          }
         } catch {
-          token.id = user.id;
-          token.role = user.role || "user";
+          if (user) {
+            token.role = user.role || "user";
+          }
         }
+      }
+      if (user) {
         token.name = user.name;
         token.email = user.email;
         token.picture = user.image;

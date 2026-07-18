@@ -171,6 +171,17 @@ const Navbar = () => {
               </li>
             );
           })}
+          {session?.user?.role === "admin" && (
+            <li>
+              <Link
+                href="/dashboard"
+                onClick={handleNav("Dashboard", "/dashboard")}
+                className="rounded-full px-4 py-2 text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+              >
+                Dashboard
+              </Link>
+            </li>
+          )}
         </ul>
 
         {status === "authenticated" ? (
@@ -274,7 +285,9 @@ const Navbar = () => {
                           {megaMenuSections.account.title}
                         </p>
                         <div className="space-y-0.5">
-                          {megaMenuSections.account.items.map((item) => (
+                          {megaMenuSections.account.items
+                            .filter((item) => item.label !== "Dashboard" || session?.user?.role === "admin")
+                            .map((item) => (
                             <Link
                               key={item.href}
                               href={item.href}
@@ -423,7 +436,9 @@ const Navbar = () => {
                 <p className="px-4 py-1 mt-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
                   Account
                 </p>
-                {megaMenuSections.account.items.map((item) => (
+                {megaMenuSections.account.items
+                  .filter((item) => item.label !== "Dashboard" || session?.user?.role === "admin")
+                  .map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}

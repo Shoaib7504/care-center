@@ -54,7 +54,7 @@ export default function Sidebar() {
       >
         <div className="flex h-16 items-center justify-between border-b border-border px-4">
           <Link
-            href="/dashboard"
+            href="/"
             className={`flex items-center gap-2.5 ${collapsed ? "justify-center w-full" : ""}`}
           >
             <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl gradient-primary text-white shadow-soft">
